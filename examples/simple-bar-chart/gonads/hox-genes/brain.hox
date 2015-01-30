@@ -7,7 +7,6 @@
 
   module.exports = {
     express: require('./express.hox'),
-    socketio: require('./socketio.hox'),
     saltEntropy: 8
   };
 })();

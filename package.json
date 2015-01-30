@@ -1,0 +1,30 @@
+{
+  "name": "ampersand-bar-chart",
+  "version": "0.1.0",
+  "description": "Ampersand module for drawing a bar chart.",
+  "main": "ampersand-bar-chart.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:helpdotcom/ampersand-bar-chart"
+  },
+  "keywords": [
+    "ampersand",
+    "bar",
+    "chart"
+  ],
+  "author": "Alexander Martin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/helpdotcom/ampersand-bar-chart/issues"
+  },
+  "homepage": "https://github.com/helpdotcom/ampersand-bar-chart",
+  "dependencies": {
+    "ampersand-state": "^4.4.4",
+    "ampersand-view": "^7.2.0",
+    "d3": "^3.5.3",
+    "lodash": "^3.0.1"
+  }
+}

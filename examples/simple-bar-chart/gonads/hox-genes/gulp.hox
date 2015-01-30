@@ -1,0 +1,67 @@
+// vi:syntax=javascript
+
+var gulp = require('gulp');
+var shell = require('gulp-shell');
+var gutil = require('gulp-util');
+var source = require('vinyl-source-stream');
+var browserify = require('browserify');
+var plumber = require('gulp-plumber');
+var bower = require('gulp-bower');
+
+gulp.task('default', [ 'build', 'watch' ]);
+
+gulp.task('build', [ 'bower-css', 'sass', 'browserify-js' ]);
+
+gulp.task('watch', function() {
+  gulp.watch('skin/*.sass', [ 'sass' ]);
+  gulp.watch([ 'muscle/**/*.js', '!muscle/skeletal.bundle.js' ], [ 'browserify-js' ]);
+});
+
+gulp.task('bower', function() {
+  return bower();
+});
+
+gulp.task('bower-css', [ 'bower' ], function() {
+  var bowerCss = [
+    'gonads/chromosomes/bower/foundation/css/normalize.css',
+    'gonads/chromosomes/bower/foundation/css/foundation.css'
+  ];
+
+  return gulp.src(bowerCss)
+             .pipe(gulp.dest('skin/dermis'));
+});
+
+gulp.task('sass', [ 'bower' ], function() {
+  var sass = shell('sass skin/<%= filename(file.path) %> skin/dermis/<%= css(filename(file.path)) %>', {
+    templateData: {
+      filename: function(path) {
+        var segments = path.split('/');
+        return segments[segments.length - 1];
+      },
+      css: function(filename) {
+        var segments = filename.split('.');
+        segments.pop();
+        segments.push('css');
+        return segments.join('.');
+      }
+    }
+  });
+
+  gutil.log('Converting SASS to CSS.');
+  return gulp.src('skin/*.sass')
+             .pipe(plumber())
+             .pipe(sass);
+});
+
+gulp.task('browserify-js', function() {
+  gutil.log('Browserifying JS.');
+  return browserify('./muscle/skeletal.js')
+         .bundle()
+         .on('error', function(error) {
+           gutil.beep();
+           gutil.log(error.message);
+           this.end();
+         })
+         .pipe(source('skeletal.bundle.js'))
+         .pipe(gulp.dest('muscle'));
+});

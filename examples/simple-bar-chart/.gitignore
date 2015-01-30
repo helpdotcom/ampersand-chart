@@ -1,0 +1,7 @@
+.sass-cache
+node_modules
+gonads/chromosomes
+*.bundle.js
+*.css
+.*.swp
+*.log

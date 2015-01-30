@@ -1,0 +1,30 @@
+{
+  "name": "simple-bar-chart-example",
+  "version": "0.0.1",
+  "description": "Simple bar chart example",
+  "main": "anatomy-cli.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+  },
+  "keywords": [
+    "anatomy",
+    "framework",
+    "mvc",
+    "boilerplate"
+  ],
+  "author": {
+    "name": "Alexander Martin"
+  },
+  "license": "MIT",
+  "maintainers": [
+    {
+      "name": "suitupalex",
+      "email": "alex@suitupalex.com"
+    }
+  ],
+  "directories": {}
+}

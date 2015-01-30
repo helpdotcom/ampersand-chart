@@ -1,0 +1,54 @@
+// vi:syntax=javascript
+
+;(function() {
+  'use strict';
+
+  var CEREBELLUM = require('../../brain/cerebellum.js');
+
+  var self;
+  module.exports = self = {
+    engine: 'jade',
+    port: 8085,
+    routes: {
+      '*': function(request, response) {
+        response.render('spine');
+      }
+    },
+    passport: null,
+    configure: function(parameters) {
+      var app = parameters.app;
+      var express = parameters.express;
+
+      app.locals.basedir = CEREBELLUM.directories.root;
+
+      app.use('/skin', express.static(CEREBELLUM.directories.skin));
+      app.use('/muscle', express.static(CEREBELLUM.directories.muscle));
+
+      app.set('views', CEREBELLUM.directories.skeleton);
+      app.set('view engine', this.engine);
+
+      var emptyMiddleware = function(request, response, next) { next(); };
+      var routeKeys = Object.keys(this.routes);
+      for (var i = 0; i < routeKeys.length; i ++) {
+        var route = routeKeys[i];
+        if (typeof this.routes[route] === 'function') {
+          app.all(route, this.routes[route]);
+        } else {
+          var typeKeys = Object.keys(this.routes[route]);
+          for (var j = 0; j < typeKeys.length; j ++) {
+            var type = typeKeys[j];
+            var middleware, execute;
+            if (typeof this.routes[route][type] === 'function') {
+              middleware = emptyMiddleware;
+              execute = this.routes[route][type];
+            } else {
+              middleware = this.routes[route][type].middleware;
+              execute = this.routes[route][type].execute;
+            }
+            app[type](route, middleware, execute);
+          }
+        }
+      }
+    }
+  };
+})();

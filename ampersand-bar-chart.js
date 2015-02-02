@@ -57,7 +57,7 @@
       var width = 600;
       var height = 320;
       var barWidth = 25; 
-      var bagGroupMargin = 30;
+      var barGroupMargin = 30;
       var barMargin = 5;
 
       var chart = this.chart = d3.select(this.el)
@@ -70,7 +70,7 @@
         .append('line')
           .attr('class', 'ampersand-graph-ground')
           .attr('x1', 0)
-          .attr('x2', (data.length - 1) * ((barWidth + barMargin) * values.length + bagGroupMargin) + barWidth * 2 * values.length)
+          .attr('x2', (2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin)
           .attr('y1', height - 26)
           .attr('y2', height - 26);
 
@@ -88,9 +88,8 @@
 
       var height = 320;
       var barWidth = 25; 
-      var bagGroupMargin = 30;
+      var barGroupMargin = 30;
       var barMargin = 5;
-
 
       var y = d3.scale.linear()
         .domain([ 0, d3.max(data, function(d) {
@@ -116,27 +115,8 @@
       
       container
         .attr('transform', function(d, i) {
-          return 'translate(' + (i * ((barWidth + barMargin) * values.length + bagGroupMargin) + barWidth) + ',24)';
+          return 'translate(' + ((i * values.length + 1) * barWidth + i * (values.length - 1) * barMargin + i * barGroupMargin) + ',24)';
         });
-
-      if (this.model.drawBarBackground) {
-        _.each(values, function(value, index) {
-         container.append('rect')
-            .attr('class', 'ampersand-graph-bar-background')
-            .attr('y', '1.5em')
-            .attr('x', (barWidth + barMargin) * index)
-            .attr('width', barWidth)
-            .attr('height', height - 76);
-        });
-      }
-
-      _.each(values, function(value, index) {
-        container.append('rect')
-          .attr('class', 'ampersand-graph-bar ampersand-graph-bar-' + index)
-          .attr('width', barWidth)
-          .attr('y', height - 50)
-          .attr('height', 0);
-      });
 
       if (this.model.drawLabels) {
         container.append('text')
@@ -146,39 +126,49 @@
           .attr('dy', '1.25em');
       }
 
-      if (this.model.drawValues) {
-        _.each(values, function(value, index) {
+      containers.select('text.ampersand-graph-label')
+        .text(function(d) { return d[label]; });
+
+      _.each(values, function(value, index) {
+        if (this.model.drawBarBackground) {
+         container.append('rect')
+            .attr('class', 'ampersand-graph-bar-background')
+            .attr('y', '1.5em')
+            .attr('x', (barWidth + barMargin) * index)
+            .attr('width', barWidth)
+            .attr('height', height - 76);
+        }
+
+        container.append('rect')
+          .attr('class', 'ampersand-graph-bar ampersand-graph-bar-' + index)
+          .attr('width', barWidth)
+          .attr('y', height - 50)
+          .attr('height', 0);
+
+        if (this.model.drawValues) {
           container.append('text')
             .attr('class', 'ampersand-graph-value ampersand-graph-value-' + index)
             .attr('x', barWidth * (index * 2 + 1) / 2 + barMargin * index)
             .attr('y', height - 50)
             .attr('dy', '-0.75em')
             .attr('dx', '-0.05em');
-        });
-      }
+        }
 
-      var bars = containers.select('rect.ampersand-graph-bar');
-      _.each(values, function(value, index) {
         containers.select('rect.ampersand-graph-bar-' + index)
           .attr('x', (barWidth + barMargin) * index)
           .transition()
           .attr('y', function(d) { return y(d[value]) + 50; })
           .attr('height', function(d) { return height - 100 - y(d[value]); });
-      });
 
-      containers.select('text.ampersand-graph-label')
-        .text(function(d) { return d[label]; });
-
-      _.each(values, function(value, index) {
         containers.select('text.ampersand-graph-value-' + index)
           .transition()
           .attr('y', function(d) { return y(d[value]) + 50; })
           .text(function(d) { return d[value]; });
-      });
+      }.bind(this));
 
       chart.select('line.ampersand-graph-ground')
         .transition()
-        .attr('x2', (data.length - 1) * ((barWidth + barMargin) * values.length + bagGroupMargin) + barWidth * 2 * values.length);
+        .attr('x2', (2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin);
     }
   });
 

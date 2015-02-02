@@ -23,6 +23,7 @@
   "homepage": "https://github.com/helpdotcom/ampersand-bar-chart",
   "dependencies": {
     "ampersand-state": "^4.4.4",
+    "ampersand-subcollection": "^2.0.1",
     "ampersand-view": "^7.2.0",
     "d3": "^3.5.3",
     "lodash": "^3.0.1"

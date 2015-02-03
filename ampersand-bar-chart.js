@@ -16,7 +16,7 @@
 
       // GUI Settings
       chartType:  [ 'string', false, 'bar' ],
-      drawValues: [ 'boolean', false, false ],
+      drawValues: [ 'boolean', false, true ],
       drawLabels: [ 'boolean', false, true ],
       drawBarBackground: [ 'boolean', false, true ],
         

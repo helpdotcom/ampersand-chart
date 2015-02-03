@@ -148,7 +148,7 @@
                     ',' + (height + 20) + ')');
                 break;
                 case 'line':
-                case 'line':
+                case 'area':
                   legend.attr('transform', 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin) / 2 - width / 2) + ',' + (height + 20) + ')');
                 break;
               }
@@ -164,6 +164,9 @@
         break;
         case 'line':
           this.renderLineGraph();
+        break;
+        case 'area':
+          this.renderAreaGraph();
         break;
       }
     },
@@ -279,16 +282,43 @@
         }) ])
         .range([ height - 100, 0 ]);
 
+      var areaFunction = d3.svg.area()
+        .x(function(d) { return d.x; })
+        .y0(height - 50)
+        .y1(function(d) { return d.y; })
+        .interpolate('linear');
+
+      var pathContainers = chart.selectAll('g.ampersand-graph-line-area-container')
+        .data(data);
+
       var containers = chart.selectAll('g.ampersand-graph-line-container')
         .data(data);
+
+      pathContainers.exit()
+        .transition()
+        .style('opacity', 0)
+        .remove();
 
       containers.exit()
         .transition()
         .style('opacity', 0)
         .remove();
 
+      var pathContainer = pathContainers.enter().append('g')
+        .attr('class', 'ampersand-graph-line-area-container');
+
       var container = containers.enter().append('g')
         .attr('class', 'ampersand-graph-line-container');
+      
+      pathContainer
+        .style('opacity', 0)
+        .transition()
+        .style('opacity', 1);
+      
+      pathContainer
+        .attr('transform', function(d, i) {
+          return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth) + ',24)';
+        });
 
       container
         .style('opacity', 0)
@@ -312,6 +342,20 @@
         .text(function(d) { return d[label]; });
 
       _.each(values, function(value, index) {
+        pathContainers.append('path')
+          .attr('class', 'ampersand-graph-line-area ampersand-graph-line-area-' + index)
+          .attr('shape-rendering', 'crispEdges')
+          .attr('d', function(d) {
+            var path = [
+              { x: lineWidth / 2, y: height - 50 },
+              { 
+                x: d.index < data.length - 1 ? lineWidth * 3 / 2 + lineGroupMargin : lineWidth / 2,
+                y: height - 50
+              }
+            ];
+            return areaFunction(path);
+          });
+
         container.append('line')
           .attr('class', 'ampersand-graph-line ampersand-graph-line-' + index)
           .attr('x1', lineWidth / 2)
@@ -339,7 +383,6 @@
           .attr('cy', function(d) { return y(d[value]) + 50; });
 
         containers.select('line.ampersand-graph-line-' + index)
-          .attr('class', 'ampersand-graph-line ampersand-graph-line-' + index)
           .transition()
           .attr('x1', lineWidth / 2)
           .attr('y1', function(d) { return y(d[value]) + 50; })
@@ -352,6 +395,19 @@
             }
           });
 
+        pathContainers.select('path.ampersand-graph-line-area-' + index)
+          .transition()
+          .attr('d', function(d) {
+            var path = [
+              { x: lineWidth / 2, y: y(d[value]) + 50 },
+              { 
+                x: d.index < data.length - 1 ? lineWidth * 3 / 2 + lineGroupMargin: lineWidth / 2,
+                y: d.index < data.length - 1 ? y(data[d.index + 1][value]) + 50 : y(d[value]) + 50
+              }
+            ];
+            return areaFunction(path);
+          });
+
         containers.select('text.ampersand-graph-value-' + index)
           .transition()
           .attr('y', function(d) { return y(d[value]) + 50; })
@@ -361,6 +417,118 @@
       chart.select('line.ampersand-graph-ground')
         .transition()
         .attr('x2', (2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin);
+    },
+    renderAreaGraph: function() {
+      var chart = this.chart;
+      var data = this.model._data.models;
+
+      _.each(data, function(point, index) {
+        point.index = index;
+      });
+
+      var label = this.model.label;
+      var values = this.model.values;
+
+      var height = 320;
+      var areaWidth = 25; 
+      var areaGroupMargin = 50;
+      var areaMargin = 5;
+
+      var y = d3.scale.linear()
+        .domain([ 0, d3.max(data, function(d) {
+          return Math.max.apply(null, _.remove(_.values(d.attributes), function(n) { return !isNaN(n); }));
+        }) ])
+        .range([ height - 100, 0 ]);
+
+      var areaFunction = d3.svg.area()
+        .x(function(d) { return d.x; })
+        .y0(height - 50)
+        .y1(function(d) { return d.y; })
+        .interpolate('basis');
+
+      var containers = chart.selectAll('g.ampersand-graph-area-container')
+        .data(data);
+
+      containers.exit()
+        .transition()
+        .style('opacity', 0)
+        .remove();
+
+      var container = containers.enter().append('g')
+        .attr('class', 'ampersand-graph-area-container');
+
+      container
+        .style('opacity', 0)
+        .transition()
+        .style('opacity', 1);
+      
+      container
+        .attr('transform', function(d, i) {
+          return 'translate(' + (i * (areaWidth + areaGroupMargin) + areaWidth) + ',24)';
+        });
+
+      if (this.model.drawLabels) {
+        container.append('text')
+          .attr('class', 'ampersand-graph-label')
+          .attr('x', areaWidth / 2)
+          .attr('y', height - 50)
+          .attr('dy', '1.25em');
+      }
+
+      containers.select('text.ampersand-graph-label')
+        .text(function(d) { return d[label]; });
+
+      _.each(values, function(value, index) {
+        container.append('path')
+          .attr('class', 'ampersand-graph-area ampersand-graph-area-' + index)
+          .attr('shape-rendering', 'crispEdges')
+          .attr('d', function(d) {
+            var path = [
+              { x: areaWidth / 2, y: height - 50 },
+              { 
+                x: d.index < data.length - 1 ? areaWidth * 3 / 2 + areaGroupMargin : areaWidth / 2,
+                y: height - 50
+              }
+            ];
+            return areaFunction(path);
+          });
+
+        if (this.model.drawValues) {
+          container.append('text')
+            .attr('class', 'ampersand-graph-value ampersand-graph-value-' + index)
+            .attr('x', areaWidth / 2)
+            .attr('y', height - 50)
+            .attr('dy', '-0.75em')
+            .attr('dx', '-0.05em');
+        }
+
+        containers.select('path.ampersand-graph-area-' + index)
+          .transition()
+          .attr('d', function(d) {
+            var path = [
+              { x: areaWidth / 2, y: y(d[value]) + 50 },
+              { x: areaWidth * 3 / 2, y: y(d[value]) + 50 },
+              { 
+                x: d.index < data.length - 1 ? areaWidth / 2 + areaGroupMargin: areaWidth * 5 / 4,
+                y: d.index < data.length - 1 ? y(data[d.index + 1][value]) + 50 : y(d[value]) + 50
+              },
+              { 
+                x: d.index < data.length - 1 ? areaWidth * 3 / 2 + areaGroupMargin: areaWidth / 2,
+                y: d.index < data.length - 1 ? y(data[d.index + 1][value]) + 50 : y(d[value]) + 50
+              }
+            ];
+            return areaFunction(path);
+          });
+
+        containers.select('text.ampersand-graph-value-' + index)
+          .transition()
+          .attr('y', function(d) { return y(d[value]) + 50; })
+          .text(function(d) { return d[value]; });
+      }.bind(this));
+
+      chart.select('area.ampersand-graph-ground')
+        .transition()
+        .attr('x2', (2 + data.length) * areaWidth + (data.length - 1) * areaGroupMargin);
     }
   });
 

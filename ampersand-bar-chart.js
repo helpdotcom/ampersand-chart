@@ -507,9 +507,12 @@
           .attr('d', function(d) {
             var path = [
               { x: areaWidth / 2, y: y(d[value]) + 50 },
-              { x: areaWidth * 3 / 2, y: y(d[value]) + 50 },
+              {
+                x: d.index < data.length - 1 ? areaWidth * 3 / 2 : areaWidth / 2,
+                y: y(d[value]) + 50
+              },
               { 
-                x: d.index < data.length - 1 ? areaWidth / 2 + areaGroupMargin: areaWidth * 5 / 4,
+                x: d.index < data.length - 1 ? areaWidth / 2 + areaGroupMargin: areaWidth / 2,
                 y: d.index < data.length - 1 ? y(data[d.index + 1][value]) + 50 : y(d[value]) + 50
               },
               { 

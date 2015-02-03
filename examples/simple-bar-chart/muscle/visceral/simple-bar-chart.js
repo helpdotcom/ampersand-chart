@@ -49,7 +49,8 @@
         title: 'Pizza Sales',
         label: 'name',
         values: [ 'amount', 'otherAmount', 'thatOtherThing' ],
-        data: pizzaCollection
+        data: pizzaCollection,
+        chartType: 'line'
       });
       var chartView = new AmpersandBarChart.View({ model: chartState });
 

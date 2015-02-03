@@ -73,8 +73,8 @@
         .append('line')
           .attr('class', 'ampersand-graph-ground')
           .attr('x1', 0)
-          .attr('y1', height - 26)
-          .attr('y2', height - 26);
+          .attr('y1', height - 25)
+          .attr('y2', height - 25);
 
       switch (this.model.chartType) {
           case 'bar':

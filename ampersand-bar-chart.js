@@ -62,7 +62,7 @@
 
       var chart = this.chart = d3.select(this.el)
         .attr('width', '100%')
-        .attr('height', '20em');
+        .attr('height', '25em');
 
       this.renderData();
       
@@ -79,6 +79,64 @@
         .attr('x', 0)
         .attr('y', '1em')
         .text(this.model.title);
+
+      var legend = chart.append('g')
+        .attr('class', 'ampersand-graph-legend')
+        .attr('transform', 'translate(' +
+          (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin) / 2 - 100) +
+          ',' + (height + 20) + ')');
+
+      var legendBackground = legend.append('rect')
+        .attr('class', 'ampersand-graph-legend-background')
+        .attr('width', 200)
+        .attr('height', '2em')
+        .attr('rx', 20)
+        .attr('ry', 20);
+
+      var legendKey = [];
+      _.each(values, function(value, index) {
+        var legendCircle = legend.append('circle')
+          .attr('class', 'ampersand-graph-bar-' + index)
+          .attr('r', '0.3em')
+          .attr('cy', '1em');
+
+        legendKey[index] = legend.append('text');
+        legendKey[index]
+          .attr('x', 24)
+          .attr('y', 20)
+          .text(value);
+
+        (function(legend, legendCircle, legendKey, legendBackground, index) {
+          setTimeout(function() {
+            var offset = 0;
+            
+            if (index === 1) {
+              offset = legendKey[0][0][0].getBBox().width;
+            } else if (index > 1) {
+              offset = _.reduce(_.take(legendKey, index), function(result, n, key) {
+                return (isNaN(result) ? result[0][0].getBBox().width : result) + n[0][0].getBBox().width;
+              });
+            }
+
+            legendCircle.attr('cx', 16 + 24 * index + offset);
+            legendKey[index].attr('x', 24 * (index + 1) + offset);
+
+            if (index === legendKey.length - 1) {
+              var width = _.reduce(legendKey, function(result, n, key) {
+                return (isNaN(result) ? result[0][0].getBBox().width : result) + n[0][0].getBBox().width;
+              });
+              width += 36 + 24 * index;
+
+              legendBackground
+                .attr('width', width);
+              legend
+                .attr('transform', 'translate(' +
+                  (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin) / 2 - width / 2) +
+                  ',' + (height + 20) + ')');
+            }
+          }, 1);
+        })(legend, legendCircle, legendKey, legendBackground, index);
+      });
     },
     renderData: function() {
       var chart = this.chart;

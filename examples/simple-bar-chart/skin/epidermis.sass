@@ -2,26 +2,32 @@
   text-align: center
   padding: 3em
   .chart
-    rect
-      &.ampersand-graph-
-        &bar
-          fill: #207CE5
-        &bar-1
+    .ampersand-graph
+      &-bar
+        fill: #207CE5
+        &-1
           fill: #004E7D
-        &bar-background
+        &-2
+          fill: #89c3ea
+      &-bar-background
+        fill: #f0f0f0
+      &-legend
+        &-background
           fill: #f0f0f0
+        text
+          text-anchor: start
     text
       fill: #000
       font: 0.75em sans-serif
       text-anchor: middle
       text-transform: capitalize
-      &.ampersand-graph-
-        &title
+      &.ampersand-graph
+        &-title
           fill: #004E7D
           text-anchor: start
           font: bold 0.8em sans-serif
     line
-      &.ampersand-graph-
-        &ground
+      &.ampersand-graph
+        &-ground
           stroke: #111
           stroke-width: 0.1em

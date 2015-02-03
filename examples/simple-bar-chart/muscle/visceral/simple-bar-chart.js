@@ -17,7 +17,7 @@
       name: 'string',
       amount: 'mumber',
       otherAmount: 'number',
-      otherOtherAmount: 'number'
+      thatOtherThing: 'number'
     }
   });
   var PizzaCollection = AmpersandCollection.extend({
@@ -33,22 +33,22 @@
     },
     createChart: function() {
       var pizzaCollection = window.pizzaCollection = new PizzaCollection([
-        { name: 'California', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), otherOtherAmount: Math.floor(Math.random() * 250) },
-        { name: 'Chicago', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), otherOtherAmount: Math.floor(Math.random() * 250) },
-        { name: 'Greek', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), otherOtherAmount: Math.floor(Math.random() * 250) },
-        { name: 'Hawaiian', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), otherOtherAmount: Math.floor(Math.random() * 250) },
-        { name: 'NY', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), otherOtherAmount: Math.floor(Math.random() * 250) },
-        { name: 'Quad City', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), otherOtherAmount: Math.floor(Math.random() * 250) },
-        { name: 'Sicilian', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), otherOtherAmount: Math.floor(Math.random() * 250) },
-        { name: 'St. Louis', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), otherOtherAmount: Math.floor(Math.random() * 250) },
-        { name: 'St. Louis', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), otherOtherAmount: Math.floor(Math.random() * 250) },
-        { name: 'Tomato', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), otherOtherAmount: Math.floor(Math.random() * 250) }
+        { name: 'California', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), thatOtherThing: Math.floor(Math.random() * 250) },
+        { name: 'Chicago', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), thatOtherThing: Math.floor(Math.random() * 250) },
+        { name: 'Greek', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), thatOtherThing: Math.floor(Math.random() * 250) },
+        { name: 'Hawaiian', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), thatOtherThing: Math.floor(Math.random() * 250) },
+        { name: 'NY', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), thatOtherThing: Math.floor(Math.random() * 250) },
+        { name: 'Quad City', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), thatOtherThing: Math.floor(Math.random() * 250) },
+        { name: 'Sicilian', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), thatOtherThing: Math.floor(Math.random() * 250) },
+        { name: 'St. Louis', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), thatOtherThing: Math.floor(Math.random() * 250) },
+        { name: 'St. Louis', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), thatOtherThing: Math.floor(Math.random() * 250) },
+        { name: 'Tomato', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), thatOtherThing: Math.floor(Math.random() * 250) }
       ]);
 
       var chartState = new AmpersandBarChart.State({
         title: 'Pizza Sales',
         label: 'name',
-        values: [ 'amount', 'otherAmount', 'otherOtherAmount' ],
+        values: [ 'amount', 'otherAmount', 'thatOtherThing' ],
         data: pizzaCollection
       });
       var chartView = new AmpersandBarChart.View({ model: chartState });
@@ -63,7 +63,7 @@
         url: 'http://api.randomuser.me',
         dataType: 'json',
         success: function(data) {
-          window.pizzaCollection.add({ name: data.results[0].user.name.first, amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), otherOtherAmount: Math.floor(Math.random() * 250 )});
+          window.pizzaCollection.add({ name: data.results[0].user.name.first, amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), thatOtherThing: Math.floor(Math.random() * 250 )});
         }
       });
     }

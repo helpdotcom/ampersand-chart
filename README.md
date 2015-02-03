@@ -10,7 +10,7 @@ Takes a collection of data and turns it into a nice, D3 powered, SVG chart.
 * Completely stylable through CSS.
 
 # Installation
-This will soon be published to `npm` as `ampersand-collection`.
+This will soon be published to `npm` as `ampersand-chart`.
 
 # To Do
 * Convert magic numbers to configurable settings.

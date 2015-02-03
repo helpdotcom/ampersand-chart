@@ -50,7 +50,8 @@
         label: 'name',
         values: [ 'amount', 'otherAmount', 'thatOtherThing' ],
         data: pizzaCollection,
-        chartType: 'bar'
+        chartType: 'line',
+        drawValues: false
       });
       var chartView = new AmpersandChart.View({ model: chartState });
 

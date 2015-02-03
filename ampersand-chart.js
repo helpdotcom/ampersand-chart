@@ -259,6 +259,14 @@
       chart.select('line.ampersand-graph-ground')
         .transition()
         .attr('x2', (2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin);
+
+      chart.select('g.ampersand-graph-legend')
+        .transition()
+        .attr('transform', function() {
+          return 'translate(' +
+            (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin) / 2 - this.getBBox().width / 2) +
+            ',' + (height + 20) + ')';
+        });
     },
     renderLineGraph: function() {
       var chart = this.chart;
@@ -417,6 +425,10 @@
       chart.select('line.ampersand-graph-ground')
         .transition()
         .attr('x2', (2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin);
+
+      chart.select('g.ampersand-graph-legend')
+        .transition()
+        .attr('transform', function() { return 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin) / 2 - this.getBBox().width / 2) + ',' + (height + 20) + ')'; });
     },
     renderAreaGraph: function() {
       var chart = this.chart;
@@ -532,6 +544,10 @@
       chart.select('area.ampersand-graph-ground')
         .transition()
         .attr('x2', (2 + data.length) * areaWidth + (data.length - 1) * areaGroupMargin);
+
+      chart.select('g.ampersand-graph-legend')
+        .transition()
+        .attr('transform', function() { return 'translate(' + (((2 + data.length) * areaWidth + (data.length - 1) * areaGroupMargin) / 2 - this.getBBox().width / 2) + ',' + (height + 20) + ')'; });
     }
   });
 

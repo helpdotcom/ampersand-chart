@@ -10,7 +10,7 @@
 
   var AmpersandState = require('ampersand-state');
   var AmpersandCollection = require('ampersand-collection');  
-  var AmpersandBarChart = require('../../../../ampersand-bar-chart.js');
+  var AmpersandChart = require('../../../ampersand-chart.js');
 
   var PizzaState = AmpersandState.extend({
     props: {
@@ -25,7 +25,7 @@
   });
 
   var WelcomeView = Section.View.extend({
-    template: function() { return $('#simpleBarChart')[0]; },
+    template: function() { return $('#chartExample')[0]; },
     render: function() {
       Section.View.prototype.render.call(this);
 
@@ -45,14 +45,14 @@
         { name: 'Tomato', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), thatOtherThing: Math.floor(Math.random() * 250) }
       ]);
 
-      var chartState = new AmpersandBarChart.State({
+      var chartState = new AmpersandChart.State({
         title: 'Pizza Sales',
         label: 'name',
         values: [ 'amount', 'otherAmount', 'thatOtherThing' ],
         data: pizzaCollection,
         chartType: 'line'
       });
-      var chartView = new AmpersandBarChart.View({ model: chartState });
+      var chartView = new AmpersandChart.View({ model: chartState });
 
       $(this.el).append($(chartView.el).attr({ class: 'chart' }));
     },

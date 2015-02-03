@@ -1,26 +1,28 @@
 {
-  "name": "ampersand-bar-chart",
+  "name": "ampersand-chart",
   "version": "0.1.0",
-  "description": "Ampersand module for drawing a bar chart.",
-  "main": "ampersand-bar-chart.js",
+  "description": "Ampersand module for drawing a charts.",
+  "main": "ampersand-chart.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:helpdotcom/ampersand-bar-chart"
+    "url": "git@github.com:helpdotcom/ampersand-chart"
   },
   "keywords": [
     "ampersand",
     "bar",
+    "line",
+    "area",
     "chart"
   ],
   "author": "Alexander Martin",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/helpdotcom/ampersand-bar-chart/issues"
+    "url": "https://github.com/helpdotcom/ampersand-chart/issues"
   },
-  "homepage": "https://github.com/helpdotcom/ampersand-bar-chart",
+  "homepage": "https://github.com/helpdotcom/ampersand-chart",
   "dependencies": {
     "ampersand-state": "^4.4.4",
     "ampersand-subcollection": "^2.0.1",

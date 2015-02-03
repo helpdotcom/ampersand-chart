@@ -8,11 +8,11 @@
       this.context = options.context;
     },
     routes: {
-      '': 'simpleBarChart',
-      'simpleBarChart': 'simpleBarChart'
+      '': 'chartExample',
+      'chartExample': 'chartExample'
     },
-    simpleBarChart: function() {
-      this.context.simpleBarChart.view.render();
+    chartExample: function() {
+      this.context.chartExample.view.render();
     }
   });
 })();

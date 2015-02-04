@@ -5,8 +5,7 @@
   var AmpersandState = require('ampersand-state');
   var AmpersandView = require('ampersand-view');
   var AmpersandSubCollection = require('ampersand-subcollection');
-
-  var TimeSlider = require('./time-slider');
+  var AmpersandTimeRange = require('../ampersand-time-range/ampersand-time-range.js');
 
   var ChartState = AmpersandState.extend({
     session: {
@@ -220,10 +219,10 @@
       filterTime.append('h6')
         .text('By time:');
 
-      var timeSliderState = new TimeSlider.State();
-      var timeSliderView = new TimeSlider.View({ model: timeSliderState });
+      var timeRangeState = new AmpersandTimeRange.State();
+      var timeRangeView = new AmpersandTimeRange.View({ model: timeRangeState });
 
-      filterTime[0][0].appendChild(timeSliderView.el);
+      filterTime[0][0].appendChild(timeRangeView.el);
 
       var filterDate = filterWindowLeft.append('section')
         .attr('class', 'ampersand-graph-filter-date');

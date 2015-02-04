@@ -1,18 +1,18 @@
-# AmpersandChart
-
+ AmpersandChart
+================
 Takes a collection of data and turns it into a nice, D3 powered, SVG chart.
 
-# Features
+## Features
 * Integrates with Ampersand collections.
 * Rerendering immediately after any change in data, allowing for real time updates.
 * Internally powered by an Ampersand subcollection to allow for filtering.
 * Uses Ampersand state and view for easy bindings.
 * Completely stylable through CSS.
 
-# Installation
+## Installation
 This will soon be published to `npm` as `ampersand-chart`.
 
-# To Do
+## To Do
 * Convert magic numbers to configurable settings.
 * Scrolling
 * X-axis scaling
@@ -20,5 +20,5 @@ This will soon be published to `npm` as `ampersand-chart`.
 * Filtering
 * Mouseovers
 
-# Documentation
+## Documentation
 Documentation coming soon.

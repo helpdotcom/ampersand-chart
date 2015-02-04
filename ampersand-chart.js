@@ -6,6 +6,8 @@
   var AmpersandView = require('ampersand-view');
   var AmpersandSubCollection = require('ampersand-subcollection');
 
+  var TimeSlider = require('./time-slider');
+
   var ChartState = AmpersandState.extend({
     session: {
       // Data Settings
@@ -45,6 +47,22 @@
     initialize: function() {
       this.model._view = this;
     },
+    events: {
+      'click .ampersand-graph-filter-button': 'openFilterWindow'
+    },
+    openFilterWindow: function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      var chart = d3.select(this.el);
+      
+      chart.select('section.ampersand-graph-filter-window')
+        .style('display', 'inline-block');
+
+      chart.select('button.ampersand-graph-filter-button')
+        .style('border-bottom-right-radius', 0)
+        .style('border-bottom-left-radius', 0);
+    },
     render: function() {
       AmpersandView.prototype.render.call(this);
 
@@ -55,7 +73,6 @@
       var label = this.model.label;
       var values = this.model.values;
 
-      var width = 600;
       var height = 320;
       var barWidth = 25; 
       var barGroupMargin = 30;
@@ -156,6 +173,75 @@
           }.bind(this), 1);
         }.bind(this))(legend, legendCircle, legendKey, legendBackground, index);
       }.bind(this));
+
+      this.renderFilter();
+    },
+    renderFilter: function() {
+      var data = this.model._data.models;
+      var label = this.model.label;
+      var values = this.model.values;
+
+      var height = 320;
+      var barWidth = 25; 
+      var barGroupMargin = 30;
+      var barMargin = 5;
+      var lineWidth = 25; 
+      var lineGroupMargin = 50;
+
+      var chart = this.chart = d3.select(this.el)
+        .attr('width', '100%')
+        .attr('height', '25em');
+
+      var filterForeignObject = chart.append('foreignObject')
+        .attr('class', 'ampersand-graph-filter-foreign-object')
+        .attr('x', (2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin);
+
+      var filterContainer = filterForeignObject.append('xhtml:body')
+        .attr('class', 'ampersand-graph-filter-body')
+        .style('position', 'relative');
+
+      var filterButton = filterContainer.append('button')
+        .attr('class', 'ampersand-graph-filter-button')
+        .text('Filter');
+
+      var filterWindow = filterContainer.append('section')
+        .attr('class', 'ampersand-graph-filter-window')
+        .style('display', 'none');
+
+      var filterWindowLeft = filterWindow.append('section')
+        .attr('class', 'ampersand-graph-filter-window-left');
+
+      var filterWindowRight = filterWindow.append('section')
+        .attr('class', 'ampersand-graph-filter-window-right');
+
+      var filterTime = filterWindowLeft.append('section')
+        .attr('class', 'ampersand-graph-filter-time');
+
+      filterTime.append('h6')
+        .text('By time:');
+
+      var timeSliderState = new TimeSlider.State();
+      var timeSliderView = new TimeSlider.View({ model: timeSliderState });
+
+      filterTime[0][0].appendChild(timeSliderView.el);
+
+      var filterDate = filterWindowLeft.append('section')
+        .attr('class', 'ampersand-graph-filter-date');
+
+      filterDate.append('h6')
+        .text('By date:');
+
+      var filterPersonnel = filterWindowRight.append('section')
+        .attr('class', 'ampersand-graph-filter-personnel');
+
+      filterPersonnel.append('h6')
+        .text('By agent/team:');
+
+      var filterSelections = filterWindowRight.append('section')
+        .attr('class', 'ampersand-graph-filter-selections');
+
+      filterSelections.append('h6')
+        .text('Filter selections:');
     },
     renderData: function() {
       switch (this.model.chartType) {

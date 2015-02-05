@@ -6,6 +6,9 @@
   var $ = require('jquery');
   require('jquery-ui');
 
+  var uuid = require('uuid');
+  var md5 = require('blueimp-md5').md5;
+
   var Section = require('./section.js');
 
   var AmpersandState = require('ampersand-state');
@@ -22,6 +25,27 @@
   });
   var PizzaCollection = AmpersandCollection.extend({
     model: PizzaState
+  });
+
+
+  var UserState = AmpersandState.extend({
+    props: {
+      id: 'string',
+      name: 'string',
+      email: 'string'
+    },
+    derived: {
+      avatar: {
+        deps: [ 'email '],
+        fn: function() {
+          var hash = md5(this.email);
+          return 'https://gravatar.com/avatar/' + hash + '?s=80';
+        }
+      }
+    }
+  });
+  var UserCollection = AmpersandCollection.extend({
+    model: UserState
   });
 
   var WelcomeView = Section.View.extend({
@@ -45,13 +69,25 @@
         { name: 'Tomato', amount: Math.floor(Math.random() * 250), otherAmount: Math.floor(Math.random() * 250), thatOtherThing: Math.floor(Math.random() * 250) }
       ]);
 
+      var userCollection = window.userCollection = new UserCollection([
+        { id: uuid.v4(), name: 'Alexander Martin', email: 'alex.martin@help.com' },
+        { id: uuid.v4(), name: 'Douglas Hanna', email: 'douglas.hanna@help.com' },
+        { id: uuid.v4(), name: 'Spencer Rinehart', email: 'spencer.rinehart@help.com' },
+        { id: uuid.v4(), name: 'Randall Jones', email: 'randall.jones@help.com' },
+        { id: uuid.v4(), name: 'Adam Stevens', email: 'adam.stevens@help.com' }
+      ]);
+
       var chartState = new AmpersandChart.State({
         title: 'Pizza Sales',
         label: 'name',
         values: [ 'amount', 'otherAmount', 'thatOtherThing' ],
         data: pizzaCollection,
         chartType: 'line',
-        drawValues: false
+        drawValues: false,
+        searchData: userCollection,
+        searchIdAttribute: 'id',
+        searchImageAttribute: 'avatar',
+        searchQueryAttribute: 'name'
       });
       var chartView = new AmpersandChart.View({ model: chartState });
 

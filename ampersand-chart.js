@@ -5,7 +5,9 @@
   var AmpersandState = require('ampersand-state');
   var AmpersandView = require('ampersand-view');
   var AmpersandSubCollection = require('ampersand-subcollection');
-  var AmpersandTimeRange = require('../ampersand-time-range/ampersand-time-range.js');
+  var AmpersandTimeRange = require('ampersand-time-range');
+  var AmpersandCalendar = require('../ampersand-calendar/ampersand-calendar.js');
+  var AmpersandSearchSelect = require('../ampersand-search-select/ampersand-search-select.js');
 
   var ChartState = AmpersandState.extend({
     session: {
@@ -14,6 +16,12 @@
       title: 'string',
       values: 'array',
       label: 'string',
+
+      // Search Settings
+      searchData: 'object',
+      searchIdAttribute: 'string',
+      searchImageAttribute: 'string',
+      searchQueryAttribute: 'string',
 
       // GUI Settings
       chartType:  [ 'string', false, 'bar' ],
@@ -230,11 +238,26 @@
       filterDate.append('h6')
         .text('By date:');
 
+      var calendarState = new AmpersandCalendar.State();
+      var calendarView = new AmpersandCalendar.View({ model: calendarState });
+
+      filterDate[0][0].appendChild(calendarView.el);
+
       var filterPersonnel = filterWindowRight.append('section')
         .attr('class', 'ampersand-graph-filter-personnel');
 
       filterPersonnel.append('h6')
         .text('By agent/team:');
+
+      var searchSelectState = new AmpersandSearchSelect.State({
+        data: this.model.searchData,
+        idAttribute: this.model.searchIdAttribute,
+        imageAttribute: this.model.searchImageAttribute,
+        queryAttribute: this.model.searchQueryAttribute
+      });
+      var searchSelectView = new AmpersandSearchSelect.View({ model: searchSelectState });
+
+      filterPersonnel[0][0].appendChild(searchSelectView.el);
 
       var filterSelections = filterWindowRight.append('section')
         .attr('class', 'ampersand-graph-filter-selections');

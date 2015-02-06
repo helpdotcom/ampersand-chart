@@ -36,7 +36,7 @@
     },
     derived: {
       avatar: {
-        deps: [ 'email '],
+        deps: [ 'email'],
         fn: function() {
           var hash = md5(this.email);
           return 'https://gravatar.com/avatar/' + hash + '?s=80';

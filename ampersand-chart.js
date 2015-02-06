@@ -5,9 +5,10 @@
   var AmpersandState = require('ampersand-state');
   var AmpersandView = require('ampersand-view');
   var AmpersandSubCollection = require('ampersand-subcollection');
-  var AmpersandTimeRange = require('ampersand-time-range');
+  var AmpersandTimeRange = require('../ampersand-time-range/ampersand-time-range.js');
   var AmpersandCalendar = require('../ampersand-calendar/ampersand-calendar.js');
   var AmpersandSearchSelect = require('../ampersand-search-select/ampersand-search-select.js');
+  var AmpersandFilterTracker = require('../ampersand-filter-tracker/ampersand-filter-tracker.js');
 
   var ChartState = AmpersandState.extend({
     session: {
@@ -278,6 +279,60 @@
 
       filterSelections.append('h6')
         .text('Filter selections:');
+
+      var filterTrackerState = new AmpersandFilterTracker.State({
+        handles: [{
+          model: timeRangeState,
+          props: [ 'startTime', 'endTime' ],
+          filter: this.timeRageFilter,
+          output: function() {
+            return this.intToTimeString(this.startTime) + ' - ' + this.intToTimeString(this.endTime);
+          },
+          clearValues: [ 0, 1440 ],
+          clear: function() {
+            this.startX = 20;
+            this.endX = this.width + 20;
+          }
+        }, {
+          model: calendarState,
+          props: [ 'startDate', 'endDate' ],
+          filter: this.calendarFilter,
+          output: function() {
+            var start = this.startDate !== null ? this.startDate.format('MMMM Do') : '';
+
+            if (this.endDate !== null) {
+              return start + ' - ' + this.endDate.format('MMMM Do');
+            }
+
+            return start;
+          },
+          clearValues: [ null, null ],
+          clear: function() {
+            this.startDate = null;
+            this.endDate = null;
+          }
+        }, {
+          model: searchSelectState,
+          props: [ '_selected' ],
+          filter: this.searchSelectFilter,
+          output: function() {
+            var output = [];
+            this.selected.each(function(model) {
+              output.push(model[this.queryAttribute]);
+            }.bind(this));
+            return output.join(', ');
+          },
+          clearValues: [ function() {
+            return this._selected.length > 0;
+          } ],
+          clear: function() {
+            this._selected = [];
+          }
+        }]
+      });
+      var filterTrackerView = new AmpersandFilterTracker.View({ model: filterTrackerState });
+
+      filterSelections[0][0].appendChild(filterTrackerView.el);
     },
     renderData: function() {
       switch (this.model.chartType) {

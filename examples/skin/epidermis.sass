@@ -10,12 +10,20 @@
         &-2
           fill: #89c3ea
       &-line
+        fill: #207CE5
         stroke: #207CE5
         stroke-width: 0.1em
         &-1
           stroke: #004E7D
         &-2
           stroke: #89c3ea
+        &-dot
+          &-1
+            fill: #004E7D
+            stroke: #004E7D
+          &-2
+            fill: #89c3ea
+            stroke: #89c3ea
       &-line-area
         fill: #f0f0f0
       &-bar-background
@@ -25,12 +33,174 @@
           fill: #f0f0f0
         text
           text-anchor: start
+      &-filter
+        &-body
+          float: right
+          text-align: right
+        &-window
+          background-color: #f0f0f0
+          width: 40em
+          border-radius: 1em 0 1em 1em
+          h6
+            margin: 0
+          &-left
+            width: 55%
+            float: left
+            text-align: left
+            box-sizing: border-box
+            padding: 1em
+          &-right
+            width: 45%
+            float: right
+            text-align: left
+            box-sizing: border-box
+            padding: 1em
+        &-button
+          border: none
+          font-size: 0.75em
+          padding: 0.3em 1em
+          border-radius: 1em
+          background-color: #f0f0f0
+          color: #207ce5
+          font-weight: bold
+          &:hover
+            color: #fff
+            background-color: #207ce5
+    .ampersand-time-range
+      &-bar
+        fill: #fff
+      &-handle
+        fill: #004e7d
+        cursor: pointer
+        &:hover
+          fill: #207ce5
+      &-duration
+        stroke: #207ce5
+        stroke-width: 0.5em
+      &-midnight
+        font-size: 0.75em
+        font-weight: bold
+        &-left
+          text-anchor: start
+        &-right
+          text-anchor: end
+      &-noon
+        text-anchor: middle
+      &-tool-tip
+        &-rect
+          fill: #207ce5
+        &-tail
+          fill: #207ce5
+        &-text
+          fill: #fff
+          text-anchor: middle
+    .ampersand-calendar
+      margin-top: 0.5em
+      &-month
+        &-background
+          fill: #004e7d
+        &-label
+          fill: #fff
+          text-anchor: middle
+      &-arrow
+        stroke: #fff
+        stroke-width: 0.25em
+        cursor: pointer
+        &:hover
+          stroke: #207ce5
+      &-weekday
+        &-text
+          font-size: 0.75em
+          fill: #000
+          text-anchor: middle
+          &-selected
+            fill: #fff
+        &-container
+          cursor: pointer
+        &-selected
+          fill: #207ce5
+    .ampersand-search-select
+      margin: 1em 0
+      &-glass
+        top: -1.4em
+        left: 0.75em
+        &-circle, &-line
+          stroke: #d0d0d0
+          stroke-width: 0.2em
+          fill: none
+      &-bar
+        width: 100%
+        border: 0px solid #000
+        border-radius: 1em
+        padding: 0.5em 0.5em 0.5em 3em
+        box-sizing: border-box
+        font-size: 0.8em
+        outline: none
+      &-query
+        &-text
+          font-weight: bold
+          text-anchor: start
+        &-add
+          cursor: pointer
+          opacity: 0.75
+          &:hover
+            opacity: 1
+          &-circle
+            fill: #e85834
+          &-line
+            stroke: #fff
+            stroke-width: 0.2em
+            stroke-linecap: round
+        &-check
+          cursor: pointer
+          opacity: 0.75
+          &:hover
+            opacity: 1
+          &-circle
+            fill: #22B573
+          &-line
+            stroke: #fff
+            stroke-width: 0.2em
+            stroke-linecap: round
+    .ampersand-filter-tracker
+      font-size: 0.75em
+      font-weight: bold
+      list-style-type: none
+      margin: 0
+      padding: 0
+      &-item
+        margin-top: 0.75em
+        background-color: #e0e0e0
+        padding: 0.5em
+        border-radius: 2em
+        &-text
+          position: relative
+          top: -0.25em
+        &-cancel
+          position: relative
+          top: 0.2em
+          cursor: pointer
+          float: right
+          &-line
+            stroke: #a0a0a0
+            stroke-width: 0.25em
+        &-check
+          position: relative
+          top: 0.2em
+          margin-right: 0.5em
+          &-circle
+            fill: #22B573
+          &-line
+            stroke: #fff
+            stroke-width: 0.2em
+            stroke-linecap: round
     text
       fill: #000
       font: 0.75em sans-serif
       text-anchor: middle
-      text-transform: capitalize
       &.ampersand-graph
+        &-label
+          text-transform: capitalize
         &-title
           fill: #004E7D
           text-anchor: start

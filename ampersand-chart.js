@@ -5,6 +5,10 @@
   var AmpersandState = require('ampersand-state');
   var AmpersandView = require('ampersand-view');
   var AmpersandSubCollection = require('ampersand-subcollection');
+  var AmpersandTimeRange = require('../ampersand-time-range/ampersand-time-range.js');
+  var AmpersandCalendar = require('../ampersand-calendar/ampersand-calendar.js');
+  var AmpersandSearchSelect = require('../ampersand-search-select/ampersand-search-select.js');
+  var AmpersandFilterTracker = require('../ampersand-filter-tracker/ampersand-filter-tracker.js');
 
   var ChartState = AmpersandState.extend({
     session: {
@@ -14,6 +18,17 @@
       values: 'array',
       label: 'string',
 
+      // Search Settings
+      searchData: 'object',
+      searchIdAttribute: 'string',
+      searchImageAttribute: 'string',
+      searchQueryAttribute: 'string',
+
+      // Filter Settings
+      timeRangeFilter: 'function',
+      calendarFilter: 'function',
+      searchSelectFilter: 'function',
+
       // GUI Settings
       chartType:  [ 'string', false, 'bar' ],
       drawValues: [ 'boolean', false, true ],
@@ -22,7 +37,8 @@
         
       // Private Variables
       _view: 'object',
-      _data: 'object'
+      _data: 'object',
+      _filterOpen: [ 'boolean', false, false ]
     },
     initialize: function() {
       this._data = new AmpersandSubCollection(this.data);
@@ -45,6 +61,35 @@
     initialize: function() {
       this.model._view = this;
     },
+    bindings: {
+      'model._filterOpen': {
+        type: function(el, filterOpen) {
+          var chart = d3.select(el);
+         
+          if (filterOpen) {
+            chart.select('section.ampersand-graph-filter-window')
+              .style('display', 'inline-block');
+
+            chart.select('button.ampersand-graph-filter-button')
+              .style('border-bottom-right-radius', 0)
+              .style('border-bottom-left-radius', 0);
+          } else {
+            chart.select('section.ampersand-graph-filter-window')
+              .style('display', 'none');
+
+            chart.select('button.ampersand-graph-filter-button')
+              .style('border-bottom-right-radius', undefined)
+              .style('border-bottom-left-radius', undefined);
+          }
+        }
+      }
+    },
+    events: {
+      'click .ampersand-graph-filter-button': 'toggleFilterWindow'
+    },
+    toggleFilterWindow: function(event) {
+      this.model._filterOpen = !this.model._filterOpen;
+    },
     render: function() {
       AmpersandView.prototype.render.call(this);
 
@@ -55,7 +100,6 @@
       var label = this.model.label;
       var values = this.model.values;
 
-      var width = 600;
       var height = 320;
       var barWidth = 25; 
       var barGroupMargin = 30;
@@ -156,6 +200,140 @@
           }.bind(this), 1);
         }.bind(this))(legend, legendCircle, legendKey, legendBackground, index);
       }.bind(this));
+
+      this.renderFilter();
+    },
+    renderFilter: function() {
+      var data = this.model._data.models;
+      var label = this.model.label;
+      var values = this.model.values;
+
+      var height = 320;
+      var barWidth = 25; 
+      var barGroupMargin = 30;
+      var barMargin = 5;
+      var lineWidth = 25; 
+      var lineGroupMargin = 50;
+
+      var chart = this.chart = d3.select(this.el)
+        .attr('width', '100%')
+        .attr('height', '25em');
+
+      var filterForeignObject = chart.append('foreignObject')
+        .attr('class', 'ampersand-graph-filter-foreign-object')
+        .attr('x', (2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin);
+
+      var filterContainer = filterForeignObject.append('xhtml:body')
+        .attr('class', 'ampersand-graph-filter-body')
+        .style('position', 'relative');
+
+      var filterButton = filterContainer.append('button')
+        .attr('class', 'ampersand-graph-filter-button')
+        .text('Filter');
+
+      var filterWindow = filterContainer.append('section')
+        .attr('class', 'ampersand-graph-filter-window')
+        .style('display', 'none');
+
+      var filterWindowLeft = filterWindow.append('section')
+        .attr('class', 'ampersand-graph-filter-window-left');
+
+      var filterWindowRight = filterWindow.append('section')
+        .attr('class', 'ampersand-graph-filter-window-right');
+
+      var filterTime = filterWindowLeft.append('section')
+        .attr('class', 'ampersand-graph-filter-time');
+
+      filterTime.append('h6')
+        .text('By time:');
+
+      var timeRangeState = new AmpersandTimeRange.State();
+      var timeRangeView = new AmpersandTimeRange.View({ model: timeRangeState });
+
+      filterTime[0][0].appendChild(timeRangeView.el);
+
+      var filterDate = filterWindowLeft.append('section')
+        .attr('class', 'ampersand-graph-filter-date');
+
+      filterDate.append('h6')
+        .text('By date:');
+
+      var calendarState = new AmpersandCalendar.State();
+      var calendarView = new AmpersandCalendar.View({ model: calendarState });
+
+      filterDate[0][0].appendChild(calendarView.el);
+
+      var filterPersonnel = filterWindowRight.append('section')
+        .attr('class', 'ampersand-graph-filter-personnel');
+
+      filterPersonnel.append('h6')
+        .text('By agent/team:');
+
+      var searchSelectState = new AmpersandSearchSelect.State({
+        data: this.model.searchData,
+        idAttribute: this.model.searchIdAttribute,
+        imageAttribute: this.model.searchImageAttribute,
+        queryAttribute: this.model.searchQueryAttribute
+      });
+      var searchSelectView = new AmpersandSearchSelect.View({ model: searchSelectState });
+
+      filterPersonnel[0][0].appendChild(searchSelectView.el);
+
+      var filterSelections = filterWindowRight.append('section')
+        .attr('class', 'ampersand-graph-filter-selections');
+
+      filterSelections.append('h6')
+        .text('Filter selections:');
+
+      var filterTrackerState = new AmpersandFilterTracker.State({
+        handles: [{
+          model: timeRangeState,
+          props: [ 'startTime', 'endTime' ],
+          filter: this.timeRangeFilter,
+          output: function() {
+            return this.intToTimeString(this.startTime) + ' - ' + this.intToTimeString(this.endTime);
+          },
+          clearValues: [ 0, 1440 ],
+          clear: function() {
+            this.startX = 20;
+            this.endX = this.width + 20;
+          }
+        }, {
+          model: calendarState,
+          props: [ 'startDate', 'endDate' ],
+          filter: this.calendarFilter,
+          output: function() {
+            var start = this.startDate !== null ? this.startDate.format('MMMM Do') : '';
+
+            if (this.endDate !== null) {
+              return start + ' - ' + this.endDate.format('MMMM Do');
+            }
+
+            return start;
+          },
+          clearValues: [ null, null ],
+          clear: function() {
+            this.startDate = null;
+            this.endDate = null;
+          }
+        }, {
+          model: searchSelectState,
+          props: [ '_selected' ],
+          filter: this.searchSelectFilter,
+          output: function() {
+            return this.selected.map(_.property(this.queryAttribute)).join(', ');
+          },
+          clearValues: [ function() {
+            return this._selected.length > 0;
+          } ],
+          clear: function() {
+            this._selected = [];
+          }
+        }]
+      });
+      var filterTrackerView = new AmpersandFilterTracker.View({ model: filterTrackerState });
+
+      filterSelections[0][0].appendChild(filterTrackerView.el);
     },
     renderData: function() {
       switch (this.model.chartType) {

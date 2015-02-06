@@ -24,6 +24,11 @@
       searchImageAttribute: 'string',
       searchQueryAttribute: 'string',
 
+      // Filter Settings
+      timeRangeFilter: 'function',
+      calendarFilter: 'function',
+      searchSelectFilter: 'function',
+
       // GUI Settings
       chartType:  [ 'string', false, 'bar' ],
       drawValues: [ 'boolean', false, true ],
@@ -284,7 +289,7 @@
         handles: [{
           model: timeRangeState,
           props: [ 'startTime', 'endTime' ],
-          filter: this.timeRageFilter,
+          filter: this.timeRangeFilter,
           output: function() {
             return this.intToTimeString(this.startTime) + ' - ' + this.intToTimeString(this.endTime);
           },

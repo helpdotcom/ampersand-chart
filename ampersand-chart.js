@@ -321,11 +321,7 @@
           props: [ '_selected' ],
           filter: this.searchSelectFilter,
           output: function() {
-            var output = [];
-            this.selected.each(function(model) {
-              output.push(model[this.queryAttribute]);
-            }.bind(this));
-            return output.join(', ');
+            return this.selected.map(_.property(this.queryAttribute)).join(', ');
           },
           clearValues: [ function() {
             return this._selected.length > 0;

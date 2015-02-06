@@ -24,9 +24,12 @@
   },
   "homepage": "https://github.com/helpdotcom/ampersand-chart",
   "dependencies": {
+    "ampersand-calendar": "^0.1.0",
+    "ampersand-filter-tracker": "^0.1.0",
+    "ampersand-search-select": "^0.1.0",
     "ampersand-state": "^4.4.4",
     "ampersand-subcollection": "^2.0.1",
-    "ampersand-time-range": "^0.2.0",
+    "ampersand-time-range": "^0.2.1",
     "ampersand-view": "^7.2.0",
     "d3": "^3.5.3",
     "lodash": "^3.0.1"

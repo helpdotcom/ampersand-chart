@@ -5,10 +5,10 @@
   var AmpersandState = require('ampersand-state');
   var AmpersandView = require('ampersand-view');
   var AmpersandSubCollection = require('ampersand-subcollection');
-  var AmpersandTimeRange = require('../ampersand-time-range/ampersand-time-range.js');
-  var AmpersandCalendar = require('../ampersand-calendar/ampersand-calendar.js');
-  var AmpersandSearchSelect = require('../ampersand-search-select/ampersand-search-select.js');
-  var AmpersandFilterTracker = require('../ampersand-filter-tracker/ampersand-filter-tracker.js');
+  var AmpersandTimeRange = require('ampersand-time-range');
+  var AmpersandCalendar = require('ampersand-calendar');
+  var AmpersandSearchSelect = require('ampersand-search-select');
+  var AmpersandFilterTracker = require('ampersand-filter-tracker');
 
   var ChartState = AmpersandState.extend({
     session: {

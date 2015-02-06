@@ -179,7 +179,7 @@
             if (index === legendKey.length - 1) {
               var width = _.reduce(legendKey, function(result, n, key) {
                 return (isNaN(result) ? result[0][0].getBBox().width : result) + n[0][0].getBBox().width;
-              });
+              }, 0);
               width += 36 + 24 * index;
 
               legendBackground

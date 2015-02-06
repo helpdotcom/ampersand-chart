@@ -359,9 +359,10 @@
       var barGroupMargin = 30;
       var barMargin = 5;
 
+
       var y = d3.scale.linear()
         .domain([ 0, d3.max(data, function(d) {
-          return Math.max.apply(null, _.remove(_.values(d.attributes), function(n) { return !isNaN(n); }));
+          return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
         }) ])
         .range([ height - 100, 0 ]);
 
@@ -464,7 +465,7 @@
 
       var y = d3.scale.linear()
         .domain([ 0, d3.max(data, function(d) {
-          return Math.max.apply(null, _.remove(_.values(d.attributes), function(n) { return !isNaN(n); }));
+          return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
         }) ])
         .range([ height - 100, 0 ]);
 
@@ -626,7 +627,7 @@
 
       var y = d3.scale.linear()
         .domain([ 0, d3.max(data, function(d) {
-          return Math.max.apply(null, _.remove(_.values(d.attributes), function(n) { return !isNaN(n); }));
+          return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
         }) ])
         .range([ height - 100, 0 ]);
 

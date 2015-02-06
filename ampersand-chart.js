@@ -31,7 +31,8 @@
         
       // Private Variables
       _view: 'object',
-      _data: 'object'
+      _data: 'object',
+      _filterOpen: [ 'boolean', false, false ]
     },
     initialize: function() {
       this._data = new AmpersandSubCollection(this.data);
@@ -54,21 +55,34 @@
     initialize: function() {
       this.model._view = this;
     },
-    events: {
-      'click .ampersand-graph-filter-button': 'openFilterWindow'
+    bindings: {
+      'model._filterOpen': {
+        type: function(el, filterOpen) {
+          var chart = d3.select(el);
+         
+          if (filterOpen) {
+            chart.select('section.ampersand-graph-filter-window')
+              .style('display', 'inline-block');
+
+            chart.select('button.ampersand-graph-filter-button')
+              .style('border-bottom-right-radius', 0)
+              .style('border-bottom-left-radius', 0);
+          } else {
+            chart.select('section.ampersand-graph-filter-window')
+              .style('display', 'none');
+
+            chart.select('button.ampersand-graph-filter-button')
+              .style('border-bottom-right-radius', undefined)
+              .style('border-bottom-left-radius', undefined);
+          }
+        }
+      }
     },
-    openFilterWindow: function(event) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      var chart = d3.select(this.el);
-      
-      chart.select('section.ampersand-graph-filter-window')
-        .style('display', 'inline-block');
-
-      chart.select('button.ampersand-graph-filter-button')
-        .style('border-bottom-right-radius', 0)
-        .style('border-bottom-left-radius', 0);
+    events: {
+      'click .ampersand-graph-filter-button': 'toggleFilterWindow'
+    },
+    toggleFilterWindow: function(event) {
+      this.model._filterOpen = !this.model._filterOpen;
     },
     render: function() {
       AmpersandView.prototype.render.call(this);

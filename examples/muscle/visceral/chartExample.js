@@ -94,7 +94,7 @@
       $(this.el).append($(chartView.el).attr({ class: 'chart' }));
     },
     events: {
-      'click .chart': 'addPizza'
+      //'click .chart': 'addPizza'
     },
     addPizza: function() {
       $.ajax({

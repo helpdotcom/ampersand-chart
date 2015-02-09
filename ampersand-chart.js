@@ -125,6 +125,7 @@
             ground.attr('x2', (2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin);
           break;
           case 'line':
+          case 'area':
             ground.attr('x2', (2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin);
           break;
       }
@@ -132,7 +133,7 @@
       var title = chart.append('text')
         .attr('class', 'ampersand-graph-title')
         .attr('x', 0)
-        .attr('y', '1em')
+        .attr('y', '1.5em')
         .text(this.model.title);
 
       var legend = chart.append('g')
@@ -221,7 +222,7 @@
 
       var filterForeignObject = chart.append('foreignObject')
         .attr('class', 'ampersand-graph-filter-foreign-object')
-        .attr('x', (2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin);
+        .attr('x', '100%');
 
       var filterContainer = filterForeignObject.append('xhtml:body')
         .attr('class', 'ampersand-graph-filter-body')
@@ -720,7 +721,7 @@
           .text(function(d) { return d[value]; });
       }.bind(this));
 
-      chart.select('area.ampersand-graph-ground')
+      chart.select('line.ampersand-graph-ground')
         .transition()
         .attr('x2', (2 + data.length) * areaWidth + (data.length - 1) * areaGroupMargin);
 

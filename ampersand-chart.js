@@ -56,7 +56,7 @@
   });
 
   var ChartView = AmpersandView.extend({
-    template: '<svg></svg>',
+    template: '<div></div>',
     autoRender: true,
     initialize: function() {
       this.model._view = this;
@@ -107,7 +107,7 @@
       var lineWidth = 25; 
       var lineGroupMargin = 50;
 
-      var chart = this.chart = d3.select(this.el)
+      var chart = this.svg = d3.select(this.el).append('svg')
         .attr('width', '100%')
         .attr('height', '25em');
 
@@ -205,6 +205,7 @@
       this.renderFilter();
     },
     renderFilter: function() {
+      var filterContainer = d3.select(this.el);
       var data = this.model._data.models;
       var label = this.model.label;
       var values = this.model.values;
@@ -215,18 +216,6 @@
       var barMargin = 5;
       var lineWidth = 25; 
       var lineGroupMargin = 50;
-
-      var chart = this.chart = d3.select(this.el)
-        .attr('width', '100%')
-        .attr('height', '25em');
-
-      var filterForeignObject = chart.append('foreignObject')
-        .attr('class', 'ampersand-graph-filter-foreign-object')
-        .attr('x', '100%');
-
-      var filterContainer = filterForeignObject.append('xhtml:body')
-        .attr('class', 'ampersand-graph-filter-body')
-        .style('position', 'relative');
 
       var filterButton = filterContainer.append('button')
         .attr('class', 'ampersand-graph-filter-button')
@@ -350,7 +339,7 @@
       }
     },
     renderBarGraph: function() {
-      var chart = this.chart;
+      var chart = this.svg;
       var data = this.model._data.models;
       var label = this.model.label;
       var values = this.model.values;
@@ -449,7 +438,7 @@
         });
     },
     renderLineGraph: function() {
-      var chart = this.chart;
+      var chart = this.svg;
       var data = this.model._data.models;
 
       _.each(data, function(point, index) {
@@ -611,7 +600,7 @@
         .attr('transform', function() { return 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin) / 2 - this.getBBox().width / 2) + ',' + (height + 20) + ')'; });
     },
     renderAreaGraph: function() {
-      var chart = this.chart;
+      var chart = this.svg;
       var data = this.model._data.models;
 
       _.each(data, function(point, index) {

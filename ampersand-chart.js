@@ -283,8 +283,8 @@
           },
           clearValues: [ 0, 1440 ],
           clear: function() {
-            this.startX = 20;
-            this.endX = this.width + 20;
+            this.startX = 0;
+            this.endX = this.width;
           }
         }, {
           model: calendarState,

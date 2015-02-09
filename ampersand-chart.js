@@ -5,7 +5,7 @@
   var AmpersandState = require('ampersand-state');
   var AmpersandView = require('ampersand-view');
   var AmpersandSubCollection = require('ampersand-subcollection');
-  var AmpersandTimeRange = require('ampersand-time-range');
+  var AmpersandTimeRange = require('../ampersand-time-range/ampersand-time-range.js');
   var AmpersandCalendar = require('ampersand-calendar');
   var AmpersandSearchSelect = require('ampersand-search-select');
   var AmpersandFilterTracker = require('ampersand-filter-tracker');
@@ -218,6 +218,25 @@
       var filterButton = filterContainer.append('button')
         .attr('class', 'ampersand-graph-filter-button')
         .text('Filter');
+
+      var filterButtonArrow = filterButton.append('svg')
+        .attr('class', 'ampersand-graph-filter-button-arrow')
+        .attr('width', '1.4em')
+        .attr('height', '1em');
+
+      filterButtonArrow.append('line')
+        .attr('class', 'ampersand-graph-filter-button-arrow-line')
+        .attr('x1', '0.25em')
+        .attr('x2', '0.75em')
+        .attr('y1', '0.25em')
+        .attr('y2', '0.75em');
+
+      filterButtonArrow.append('line')
+        .attr('class', 'ampersand-graph-filter-button-arrow-line')
+        .attr('x1', '0.65em')
+        .attr('x2', '1.15em')
+        .attr('y1', '0.75em')
+        .attr('y2', '0.25em');
 
       var filterWindow = filterContainer.append('section')
         .attr('class', 'ampersand-graph-filter-window')

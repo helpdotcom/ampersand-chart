@@ -223,14 +223,8 @@
         .attr('class', 'ampersand-graph-filter-window')
         .style('display', 'none');
 
-      var filterWindowLeft = filterWindow.append('section')
-        .attr('class', 'ampersand-graph-filter-window-left');
-
-      var filterWindowRight = filterWindow.append('section')
-        .attr('class', 'ampersand-graph-filter-window-right');
-
-      var filterTime = filterWindowLeft.append('section')
-        .attr('class', 'ampersand-graph-filter-time');
+      var filterTime = filterWindow.append('section')
+        .attr('class', 'ampersand-graph-filter-widget ampersand-graph-filter-time');
 
       filterTime.append('h6')
         .text('By time:');
@@ -240,8 +234,8 @@
 
       filterTime[0][0].appendChild(timeRangeView.el);
 
-      var filterDate = filterWindowLeft.append('section')
-        .attr('class', 'ampersand-graph-filter-date');
+      var filterDate = filterWindow.append('section')
+        .attr('class', 'ampersand-graph-filter-widget ampersand-graph-filter-date');
 
       filterDate.append('h6')
         .text('By date:');
@@ -251,8 +245,8 @@
 
       filterDate[0][0].appendChild(calendarView.el);
 
-      var filterPersonnel = filterWindowRight.append('section')
-        .attr('class', 'ampersand-graph-filter-personnel');
+      var filterPersonnel = filterWindow.append('section')
+        .attr('class', 'ampersand-graph-filter-widget ampersand-graph-filter-personnel');
 
       filterPersonnel.append('h6')
         .text('By agent/team:');
@@ -267,8 +261,8 @@
 
       filterPersonnel[0][0].appendChild(searchSelectView.el);
 
-      var filterSelections = filterWindowRight.append('section')
-        .attr('class', 'ampersand-graph-filter-selections');
+      var filterSelections = filterWindow.append('section')
+        .attr('class', 'ampersand-graph-filter-widget ampersand-graph-filter-selections');
 
       filterSelections.append('h6')
         .text('Filter selections:');

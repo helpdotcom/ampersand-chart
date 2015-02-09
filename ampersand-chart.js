@@ -71,15 +71,13 @@
               .style('display', 'inline-block');
 
             chart.select('button.ampersand-graph-filter-button')
-              .style('border-bottom-right-radius', 0)
-              .style('border-bottom-left-radius', 0);
+              .attr('class', 'ampersand-graph-filter-button ampersand-graph-filter-button-open');
           } else {
             chart.select('section.ampersand-graph-filter-window')
               .style('display', 'none');
 
             chart.select('button.ampersand-graph-filter-button')
-              .style('border-bottom-right-radius', undefined)
-              .style('border-bottom-left-radius', undefined);
+              .attr('class', 'ampersand-graph-filter-button');
           }
         }
       }

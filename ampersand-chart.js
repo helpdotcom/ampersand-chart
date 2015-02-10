@@ -36,6 +36,7 @@
       drawBarBackground: [ 'boolean', false, true ],
       barMarginCoefficient: [ 'number', false, 0.2 ],
       barGroupMarginCoefficient: [ 'number', false, 1.2 ],
+      lineGroupMarginCoefficient: [ 'number', false, 2 ],
         
       // Private Variables
       _view: 'object',
@@ -475,9 +476,11 @@
       var values = this.model.values;
 
       var height = 320;
-      var lineWidth = 25; 
-      var lineGroupMargin = 50;
-      var lineMargin = 5;
+      var graphWidth = this.container.node().getBoundingClientRect().width;
+      var a = this.model.lineGroupMarginCoefficient;
+      var i = data.length;
+      var lineWidth = graphWidth / ((2 + i) + a * (i - 1));
+      var lineGroupMargin = lineWidth * a;
 
       var y = d3.scale.linear()
         .domain([ 0, d3.max(data, function(d) {
@@ -518,7 +521,7 @@
         .transition()
         .style('opacity', 1);
       
-      pathContainer
+      pathContainers
         .attr('transform', function(d, i) {
           return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth) + ',24)';
         });
@@ -528,7 +531,7 @@
         .transition()
         .style('opacity', 1);
       
-      container
+      containers
         .attr('transform', function(d, i) {
           return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth) + ',24)';
         });
@@ -536,9 +539,11 @@
       if (this.model.drawLabels) {
         container.append('text')
           .attr('class', 'ampersand-graph-label')
-          .attr('x', lineWidth / 2)
           .attr('y', height - 50)
           .attr('dy', '1.25em');
+
+        containers.select('text.ampersand-graph-label')
+          .attr('x', lineWidth / 2);
       }
 
       containers.select('text.ampersand-graph-label')

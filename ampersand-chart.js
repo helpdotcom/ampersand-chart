@@ -228,9 +228,18 @@
             this.renderData();
 
             if (yAxis) {
-              yAxis.attr('x', yAxis.node().getBBox().width);
+              var yAxisOffset = 0;
+              yAxis.selectAll('text').each(function() {
+                yAxisOffset = Math.max(this.getBBox().width, yAxisOffset);
+              });
+              yAxis.attr('x', yAxisOffset + 12);
+              yAxis.selectAll('line').each(function(d) {
+                if (d === 0) {
+                  d3.select(this).remove();
+                }
+              });
+              ground.attr('x1', yAxisOffset + 12);
             }
-            ground.attr('x1', yAxis.node().getBBox().width + 5);
           }.bind(this), 1);
         }.bind(this))(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground);
       }.bind(this));
@@ -391,7 +400,10 @@
       var values = this.model.values;
      
       var yAxis = this.svg.select('svg.ampersand-graph-y-axis');
-      var yAxisOffset = yAxis.node() && this.model.drawYAxisLabels ? yAxis.node().getBBox().width : 0;
+      var yAxisOffset = 0;
+      yAxis.selectAll('text').each(function() {
+        yAxisOffset = Math.max(this.getBBox().width, yAxisOffset);
+      });
 
       var height = 320;
       var barCount = data.length * values.length;
@@ -414,7 +426,8 @@
         var yAxisGenerator = d3.svg.axis()
           .scale(y)
           .ticks(5)
-          .tickSize(0, 0)
+          .tickSize(-graphWidth + yAxisOffset * 2.6, 0)
+          .tickPadding(12)
           .orient('left');
 
         yAxis.call(yAxisGenerator);
@@ -519,7 +532,10 @@
       var values = this.model.values;
      
       var yAxis = this.svg.select('svg.ampersand-graph-y-axis');
-      var yAxisOffset = yAxis.node() && this.model.drawYAxisLabels ? yAxis.node().getBBox().width : 0;
+      var yAxisOffset = 0;
+      yAxis.selectAll('text').each(function() {
+        yAxisOffset = Math.max(this.getBBox().width, yAxisOffset);
+      });
 
       var height = 320;
       var graphWidth = this.container.node().getBoundingClientRect().width;
@@ -538,7 +554,8 @@
         var yAxisGenerator = d3.svg.axis()
           .scale(y)
           .ticks(5)
-          .tickSize(0, 0)
+          .tickSize(-graphWidth + yAxisOffset * 2.6, 0)
+          .tickPadding(12)
           .orient('left');
 
         yAxis.call(yAxisGenerator);
@@ -579,7 +596,7 @@
       
       pathContainers
         .attr('transform', function(d, i) {
-          return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth + yAxisOffset / 2) + ',24)';
+          return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth + yAxisOffset) + ',24)';
         });
 
       container
@@ -589,7 +606,7 @@
       
       containers
         .attr('transform', function(d, i) {
-          return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth + yAxisOffset / 2) + ',24)';
+          return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth + yAxisOffset) + ',24)';
         });
 
       if (this.model.drawXAxisLabels) {
@@ -698,7 +715,10 @@
       var values = this.model.values;
      
       var yAxis = this.svg.select('svg.ampersand-graph-y-axis');
-      var yAxisOffset = yAxis.node() && this.model.drawYAxisLabels ? yAxis.node().getBBox().width : 0;
+      var yAxisOffset = 0;
+      yAxis.selectAll('text').each(function() {
+        yAxisOffset = Math.max(this.getBBox().width, yAxisOffset);
+      });
 
       var height = 320;
       var graphWidth = this.container.node().getBoundingClientRect().width;
@@ -717,7 +737,8 @@
         var yAxisGenerator = d3.svg.axis()
           .scale(y)
           .ticks(5)
-          .tickSize(0, 0)
+          .tickSize(-graphWidth + yAxisOffset * 2.6, 0)
+          .tickPadding(12)
           .orient('left');
 
         yAxis.call(yAxisGenerator);
@@ -747,7 +768,7 @@
       
       containers
         .attr('transform', function(d, i) {
-          return 'translate(' + (i * (areaWidth + areaGroupMargin) + areaWidth + yAxisOffset / 2) + ',24)';
+          return 'translate(' + (i * (areaWidth + areaGroupMargin) + areaWidth + yAxisOffset) + ',24)';
         });
 
       if (this.model.drawXAxisLabels) {

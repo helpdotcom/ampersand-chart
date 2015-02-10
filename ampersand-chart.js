@@ -34,6 +34,8 @@
       drawValues: [ 'boolean', false, true ],
       drawLabels: [ 'boolean', false, true ],
       drawBarBackground: [ 'boolean', false, true ],
+      barMarginCoefficient: [ 'number', false, 0.2 ],
+      barGroupMarginCoefficient: [ 'number', false, 1.2 ],
         
       // Private Variables
       _view: 'object',
@@ -358,13 +360,15 @@
       var values = this.model.values;
 
       var height = 320;
-      var barGroupMargin = 30;
-      var barMargin = 5;
       var barCount = data.length * values.length;
       var graphWidth = this.container.node().getBoundingClientRect().width;
+      var a = this.model.barGroupMarginCoefficient;
+      var b = this.model.barMarginCoefficient;
       var i = data.length;
       var j = values.length;
-      var barWidth = (graphWidth - i * (j - 1) * barMargin - (i - 1) * barGroupMargin) / (2 + i * j);
+      var barWidth = graphWidth / ((2 + i * j) + a * (i - 1) + b * i * (j - 1));
+      var barGroupMargin = barWidth * a;
+      var barMargin = barWidth * b;
 
       var y = d3.scale.linear()
         .domain([ 0, d3.max(data, function(d) {

@@ -32,7 +32,8 @@
       // GUI Settings
       chartType:  [ 'string', false, 'bar' ],
       drawValues: [ 'boolean', false, true ],
-      drawLabels: [ 'boolean', false, true ],
+      drawXAxisLabels: [ 'boolean', false, true ],
+      drawYAxisLabels: [ 'boolean', false, true ],
       drawBarBackground: [ 'boolean', false, true ],
       barMarginCoefficient: [ 'number', false, 0.2 ],
       barGroupMarginCoefficient: [ 'number', false, 1.2 ],
@@ -120,12 +121,23 @@
         }) ])
         .range([ height - 100, 0 ]);
 
-      var yAxisGenerator = d3.svg.axis()
-        .scale(y)
-        .ticks(5)
-        .tickSize(0, 0)
-        .orient('left');
+      var yAxis = null;
 
+      if (this.model.drawYAxisLabels) {
+        var yAxisGenerator = d3.svg.axis()
+          .scale(y)
+          .ticks(5)
+          .tickSize(0, 0)
+          .orient('left');
+
+        yAxis = chart.append('svg')
+          .attr('class', 'ampersand-graph-y-axis')
+          .style('overflow', 'visible')
+          .attr('x', '2em')
+          .attr('y', '4.75em')
+          .call(yAxisGenerator);
+      }
+      
       this.renderData();
       
       var ground = chart.append('g')
@@ -144,13 +156,6 @@
             ground.attr('x2', (2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin);
           break;
       }
-
-      var yAxis = chart.append('svg')
-        .attr('class', 'ampersand-graph-y-axis')
-        .style('overflow', 'visible')
-        .attr('x', '2em')
-        .attr('y', '4.75em')
-        .call(yAxisGenerator);
 
       var title = chart.append('text')
         .attr('class', 'ampersand-graph-title')
@@ -222,7 +227,9 @@
             }
             this.renderData();
 
-            yAxis.attr('x', yAxis.node().getBBox().width);
+            if (yAxis) {
+              yAxis.attr('x', yAxis.node().getBBox().width);
+            }
             ground.attr('x1', yAxis.node().getBBox().width + 5);
           }.bind(this), 1);
         }.bind(this))(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground);
@@ -384,7 +391,7 @@
       var values = this.model.values;
      
       var yAxis = this.svg.select('svg.ampersand-graph-y-axis');
-      var yAxisOffset = yAxis.node() ? yAxis.node().getBBox().width : 0;
+      var yAxisOffset = yAxis.node() && this.model.drawYAxisLabels ? yAxis.node().getBBox().width : 0;
 
       var height = 320;
       var barCount = data.length * values.length;
@@ -403,13 +410,15 @@
         }) ])
         .range([ height - 100, 0 ]);
 
-      var yAxisGenerator = d3.svg.axis()
-        .scale(y)
-        .ticks(5)
-        .tickSize(0, 0)
-        .orient('left');
+      if (this.model.drawYAxisLabels) {
+        var yAxisGenerator = d3.svg.axis()
+          .scale(y)
+          .ticks(5)
+          .tickSize(0, 0)
+          .orient('left');
 
-      yAxis.call(yAxisGenerator);
+        yAxis.call(yAxisGenerator);
+      }
 
       var containers = chart.selectAll('g.ampersand-graph-bar-container')
         .data(data);
@@ -432,7 +441,7 @@
           return 'translate(' + ((i * values.length + 1) * barWidth + i * (values.length - 1) * barMargin + i * barGroupMargin + yAxisOffset / 2) + ',24)';
         });
 
-      if (this.model.drawLabels) {
+      if (this.model.drawXAxisLabels) {
         container.append('text')
           .attr('class', 'ampersand-graph-label')
           .attr('y', height - 50)
@@ -510,7 +519,7 @@
       var values = this.model.values;
      
       var yAxis = this.svg.select('svg.ampersand-graph-y-axis');
-      var yAxisOffset = yAxis.node() ? yAxis.node().getBBox().width : 0;
+      var yAxisOffset = yAxis.node() && this.model.drawYAxisLabels ? yAxis.node().getBBox().width : 0;
 
       var height = 320;
       var graphWidth = this.container.node().getBoundingClientRect().width;
@@ -525,13 +534,15 @@
         }) ])
         .range([ height - 100, 0 ]);
 
-      var yAxisGenerator = d3.svg.axis()
-        .scale(y)
-        .ticks(5)
-        .tickSize(0, 0)
-        .orient('left');
+      if (this.model.drawYAxisLabels) {
+        var yAxisGenerator = d3.svg.axis()
+          .scale(y)
+          .ticks(5)
+          .tickSize(0, 0)
+          .orient('left');
 
-      yAxis.call(yAxisGenerator);
+        yAxis.call(yAxisGenerator);
+      }
 
       var areaFunction = d3.svg.area()
         .x(function(d) { return d.x; })
@@ -581,7 +592,7 @@
           return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth + yAxisOffset / 2) + ',24)';
         });
 
-      if (this.model.drawLabels) {
+      if (this.model.drawXAxisLabels) {
         container.append('text')
           .attr('class', 'ampersand-graph-label')
           .attr('y', height - 50)
@@ -687,7 +698,7 @@
       var values = this.model.values;
      
       var yAxis = this.svg.select('svg.ampersand-graph-y-axis');
-      var yAxisOffset = yAxis.node() ? yAxis.node().getBBox().width : 0;
+      var yAxisOffset = yAxis.node() && this.model.drawYAxisLabels ? yAxis.node().getBBox().width : 0;
 
       var height = 320;
       var graphWidth = this.container.node().getBoundingClientRect().width;
@@ -702,13 +713,15 @@
         }) ])
         .range([ height - 100, 0 ]);
 
-      var yAxisGenerator = d3.svg.axis()
-        .scale(y)
-        .ticks(5)
-        .tickSize(0, 0)
-        .orient('left');
+      if (this.model.drawYAxisLabels) {
+        var yAxisGenerator = d3.svg.axis()
+          .scale(y)
+          .ticks(5)
+          .tickSize(0, 0)
+          .orient('left');
 
-      yAxis.call(yAxisGenerator);
+        yAxis.call(yAxisGenerator);
+      }
 
       var areaFunction = d3.svg.area()
         .x(function(d) { return d.x; })
@@ -737,7 +750,7 @@
           return 'translate(' + (i * (areaWidth + areaGroupMargin) + areaWidth + yAxisOffset / 2) + ',24)';
         });
 
-      if (this.model.drawLabels) {
+      if (this.model.drawXAxisLabels) {
         container.append('text')
           .attr('class', 'ampersand-graph-label')
           .attr('y', height - 50)

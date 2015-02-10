@@ -5,7 +5,7 @@
   var AmpersandState = require('ampersand-state');
   var AmpersandView = require('ampersand-view');
   var AmpersandSubCollection = require('ampersand-subcollection');
-  var AmpersandTimeRange = require('../ampersand-time-range/ampersand-time-range.js');
+  var AmpersandTimeRange = require('ampersand-time-range');
   var AmpersandCalendar = require('ampersand-calendar');
   var AmpersandSearchSelect = require('ampersand-search-select');
   var AmpersandFilterTracker = require('ampersand-filter-tracker');

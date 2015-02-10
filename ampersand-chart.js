@@ -105,7 +105,8 @@
       var lineWidth = 25; 
       var lineGroupMargin = 50;
 
-      var chart = this.svg = d3.select(this.el).append('svg')
+      var container = this.container = d3.select(this.el);
+      var chart = this.svg = container.append('svg')
         .attr('width', '100%')
         .attr('height', '25em');
 
@@ -196,6 +197,7 @@
                 break;
               }
             }
+            this.renderData();
           }.bind(this), 1);
         }.bind(this))(legend, legendCircle, legendKey, legendBackground, index);
       }.bind(this));
@@ -356,10 +358,13 @@
       var values = this.model.values;
 
       var height = 320;
-      var barWidth = 25; 
       var barGroupMargin = 30;
       var barMargin = 5;
-
+      var barCount = data.length * values.length;
+      var graphWidth = this.container.node().getBoundingClientRect().width;
+      var i = data.length;
+      var j = values.length;
+      var barWidth = (graphWidth - i * (j - 1) * barMargin - (i - 1) * barGroupMargin) / (2 + i * j);
 
       var y = d3.scale.linear()
         .domain([ 0, d3.max(data, function(d) {
@@ -383,7 +388,7 @@
         .transition()
         .style('opacity', 1);
       
-      container
+      containers
         .attr('transform', function(d, i) {
           return 'translate(' + ((i * values.length + 1) * barWidth + i * (values.length - 1) * barMargin + i * barGroupMargin) + ',24)';
         });
@@ -391,9 +396,12 @@
       if (this.model.drawLabels) {
         container.append('text')
           .attr('class', 'ampersand-graph-label')
-          .attr('x', ((barWidth * values.length) + barMargin * (values.length - 1)) / 2)
           .attr('y', height - 50)
           .attr('dy', '1.25em');
+
+        containers.select('text.ampersand-graph-label')
+          .transition()
+          .attr('x', ((barWidth * values.length) + barMargin * (values.length - 1)) / 2);
       }
 
       containers.select('text.ampersand-graph-label')
@@ -401,12 +409,14 @@
 
       _.each(values, function(value, index) {
         if (this.model.drawBarBackground) {
-         container.append('rect')
-            .attr('class', 'ampersand-graph-bar-background')
+          container.append('rect')
+            .attr('class', 'ampersand-graph-bar-background ampersand-graph-bar-background-' + index)
             .attr('y', '1.5em')
-            .attr('x', (barWidth + barMargin) * index)
-            .attr('width', barWidth)
             .attr('height', height - 76);
+
+          containers.select('rect.ampersand-graph-bar-background-' + index)
+            .attr('x', (barWidth + barMargin) * index)
+            .attr('width', barWidth);
         }
 
         container.append('rect')
@@ -418,20 +428,21 @@
         if (this.model.drawValues) {
           container.append('text')
             .attr('class', 'ampersand-graph-value ampersand-graph-value-' + index)
-            .attr('x', barWidth * (index * 2 + 1) / 2 + barMargin * index)
             .attr('y', height - 50)
             .attr('dy', '-0.75em')
             .attr('dx', '-0.05em');
         }
 
         containers.select('rect.ampersand-graph-bar-' + index)
-          .attr('x', (barWidth + barMargin) * index)
           .transition()
+          .attr('x', (barWidth + barMargin) * index)
+          .attr('width', barWidth)
           .attr('y', function(d) { return y(d[value]) + 50; })
           .attr('height', function(d) { return height - 100 - y(d[value]); });
 
         containers.select('text.ampersand-graph-value-' + index)
           .transition()
+          .attr('x', barWidth * (index * 2 + 1) / 2 + barMargin * index)
           .attr('y', function(d) { return y(d[value]) + 50; })
           .text(function(d) { return d[value]; });
       }.bind(this));

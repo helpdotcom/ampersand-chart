@@ -32,6 +32,7 @@
       // GUI Settings
       chartType:  [ 'string', false, 'bar' ],
       drawValues: [ 'boolean', false, true ],
+      drawLegend: [ 'boolean', false, true ],
       drawXAxisLabels: [ 'boolean', false, true ],
       drawYAxisLabels: [ 'boolean', false, true ],
       drawYAxisGridLines: [ 'boolean', false, true ],
@@ -119,7 +120,7 @@
       var container = this.container = d3.select(this.el);
       var chart = this.svg = container.append('svg')
         .attr('width', '100%')
-        .attr('height', '25em');
+        .attr('height', this.model.drawLegend ? '25em' : '21em');
       
       var y = d3.scale.linear()
         .domain([ 0, d3.max(data, function(d) {
@@ -221,70 +222,79 @@
         .attr('y', '1.5em')
         .text(this.model.title);
 
-      var legend = chart.append('g')
-        .attr('class', 'ampersand-graph-legend')
-        .attr('transform', 'translate(' +
-          (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin) / 2 - 100) +
-          ',' + (height + 20) + ')');
+      if (this.model.drawLegend) {
+        var legend = chart.append('g')
+          .attr('class', 'ampersand-graph-legend')
+          .attr('transform', 'translate(' +
+            (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin) / 2 - 100) +
+            ',' + (height + 20) + ')');
 
-      var legendBackground = legend.append('rect')
-        .attr('class', 'ampersand-graph-legend-background')
-        .attr('width', 200)
-        .attr('height', '2em')
-        .attr('rx', 20)
-        .attr('ry', 20);
+        var legendBackground = legend.append('rect')
+          .attr('class', 'ampersand-graph-legend-background')
+          .attr('width', 200)
+          .attr('height', '2em')
+          .attr('rx', 20)
+          .attr('ry', 20);
 
-      var legendKey = [];
-      _.each(values, function(value, index) {
-        var legendCircle = legend.append('circle')
-          .attr('class', 'ampersand-graph-bar-' + index)
-          .attr('r', '0.3em')
-          .attr('cy', '1em');
+        var legendKey = [];
+        _.each(values, function(value, index) {
+          var legendCircle = legend.append('circle')
+            .attr('class', 'ampersand-graph-bar-' + index)
+            .attr('r', '0.3em')
+            .attr('cy', '1em');
 
-        legendKey[index] = legend.append('text');
-        legendKey[index]
-          .attr('x', 24)
-          .attr('y', 20)
-          .text(value);
+          legendKey[index] = legend.append('text');
+          legendKey[index]
+            .attr('x', 24)
+            .attr('y', 20)
+            .text(value);
 
-        (function(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground) {
-          setTimeout(function() {
-            var offset = 0;
-            
-            if (index === 1) {
-              offset = legendKey[0][0][0].getBBox().width;
-            } else if (index > 1) {
-              offset = _.reduce(_.take(legendKey, index), function(result, n, key) {
-                return (isNaN(result) ? result[0][0].getBBox().width : result) + n[0][0].getBBox().width;
-              });
-            }
-
-            legendCircle.attr('cx', 16 + 24 * index + offset);
-            legendKey[index].attr('x', 24 * (index + 1) + offset);
-
-            if (index === legendKey.length - 1) {
-              var width = _.reduce(legendKey, function(result, n, key) {
-                return (isNaN(result) ? result[0][0].getBBox().width : result) + n[0][0].getBBox().width;
-              }, 0);
-              width += 36 + 24 * index;
-
-              legendBackground
-                .attr('width', width);
-
-              switch (this.model.chartType) {
-                case 'bar':
-                  legend.attr('transform', 'translate(' +
-                    (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin - width) / 2 - circleGraphRadius) +
-                    ',' + (height + 20) + ')');
-                break;
-                case 'line':
-                case 'area':
-                  legend.attr('transform', 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin - width) / 2 - circleGraphRadius) + ',' + (height + 20) + ')');
-                break;
+          (function(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground) {
+            setTimeout(function() {
+              var offset = 0;
+              
+              if (index === 1) {
+                offset = legendKey[0][0][0].getBBox().width;
+              } else if (index > 1) {
+                offset = _.reduce(_.take(legendKey, index), function(result, n, key) {
+                  return (isNaN(result) ? result[0][0].getBBox().width : result) + n[0][0].getBBox().width;
+                });
               }
-            }
-            this.renderData();
 
+              legendCircle.attr('cx', 16 + 24 * index + offset);
+              legendKey[index].attr('x', 24 * (index + 1) + offset);
+
+              if (index === legendKey.length - 1) {
+                var width = _.reduce(legendKey, function(result, n, key) {
+                  return (isNaN(result) ? result[0][0].getBBox().width : result) + n[0][0].getBBox().width;
+                }, 0);
+                width += 36 + 24 * index;
+
+                legendBackground
+                  .attr('width', width);
+
+                switch (this.model.chartType) {
+                  case 'bar':
+                    legend.attr('transform', 'translate(' +
+                      (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin - width) / 2 - circleGraphRadius) +
+                      ',' + (height + 20) + ')');
+                  break;
+                  case 'line':
+                  case 'area':
+                    legend.attr('transform', 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin - width) / 2 - circleGraphRadius) + ',' + (height + 20) + ')');
+                  break;
+                }
+              }
+
+              this.renderData();
+            }.bind(this), 1);
+          }.bind(this))(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground);
+        }.bind(this));
+      }
+
+      if (this.model.drawYAxisLabels) {
+        (function(yAxis, ground) {
+          setTimeout(function() {
             if (yAxis) {
               var yAxisOffset = 0;
               yAxis.selectAll('text').each(function() {
@@ -298,16 +308,24 @@
               });
               ground.attr('x1', yAxisOffset + 12);
             }
-
-            if (this.model.drawCircleGraph) {
-              var rectWidth = this.circleSvg.select('text.ampersand-graph-circle-label').node().getBBox().width + 32;
-              this.circleSvg.select('rect.ampersand-graph-circle-label-background')
-                .attr('width', rectWidth)
-                .attr('transform', 'translate(-' + rectWidth / 2 + ',0)');
-            }
+           
+            this.renderData();
           }.bind(this), 1);
-        }.bind(this))(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground);
-      }.bind(this));
+        }.bind(this))(yAxis, ground);
+      }
+
+      if (this.model.drawCircleGraph) {
+        (function(yAxis, ground) {
+          setTimeout(function() {
+            var rectWidth = this.circleSvg.select('text.ampersand-graph-circle-label').node().getBBox().width + 32;
+            this.circleSvg.select('rect.ampersand-graph-circle-label-background')
+              .attr('width', rectWidth)
+              .attr('transform', 'translate(-' + rectWidth / 2 + ',0)');
+
+            this.renderData();
+          }.bind(this), 1);
+        }.bind(this))(yAxis, ground);
+      }
 
       this.renderFilter();
     },
@@ -549,7 +567,7 @@
       if (this.model.drawXAxisLabels) {
         container.append('text')
           .attr('class', 'ampersand-graph-label')
-          .attr('y', height - 50)
+          .attr('y', height - 46)
           .attr('dy', '1.25em');
 
         containers.select('text.ampersand-graph-label')
@@ -704,7 +722,7 @@
       if (this.model.drawXAxisLabels) {
         container.append('text')
           .attr('class', 'ampersand-graph-label')
-          .attr('y', height - 50)
+          .attr('y', height - 46)
           .attr('dy', '1.25em');
 
         containers.select('text.ampersand-graph-label')
@@ -866,7 +884,7 @@
       if (this.model.drawXAxisLabels) {
         container.append('text')
           .attr('class', 'ampersand-graph-label')
-          .attr('y', height - 50)
+          .attr('y', height - 46)
           .attr('dy', '1.25em');
 
         containers.select('text.ampersand-graph-label')

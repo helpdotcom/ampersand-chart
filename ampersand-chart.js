@@ -34,6 +34,7 @@
       drawValues: [ 'boolean', false, true ],
       drawXAxisLabels: [ 'boolean', false, true ],
       drawYAxisLabels: [ 'boolean', false, true ],
+      drawYAxisGridLines: [ 'boolean', false, true ],
       drawBarBackground: [ 'boolean', false, true ],
       barMarginCoefficient: [ 'number', false, 0.2 ],
       barGroupMarginCoefficient: [ 'number', false, 1.2 ],
@@ -426,7 +427,7 @@
         var yAxisGenerator = d3.svg.axis()
           .scale(y)
           .ticks(5)
-          .tickSize(-graphWidth + yAxisOffset * 2.6, 0)
+          .tickSize(this.model.drawYAxisGridLines ? -graphWidth + yAxisOffset * 2.6 : 0, 0)
           .tickPadding(12)
           .orient('left');
 
@@ -554,7 +555,7 @@
         var yAxisGenerator = d3.svg.axis()
           .scale(y)
           .ticks(5)
-          .tickSize(-graphWidth + yAxisOffset * 2.6, 0)
+          .tickSize(this.model.drawYAxisGridLines ? -graphWidth + yAxisOffset * 2.6 : 0, 0)
           .tickPadding(12)
           .orient('left');
 
@@ -737,7 +738,7 @@
         var yAxisGenerator = d3.svg.axis()
           .scale(y)
           .ticks(5)
-          .tickSize(-graphWidth + yAxisOffset * 2.6, 0)
+          .tickSize(this.model.drawYAxisGridLines ? -graphWidth + yAxisOffset * 2.6 : 0, 0)
           .tickPadding(12)
           .orient('left');
 

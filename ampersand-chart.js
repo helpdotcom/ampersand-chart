@@ -5,10 +5,10 @@
   var AmpersandState = require('ampersand-state');
   var AmpersandView = require('ampersand-view');
   var AmpersandSubCollection = require('ampersand-subcollection');
-  var AmpersandTimeRange = require('../ampersand-time-range/ampersand-time-range.js');
-  var AmpersandCalendar = require('../ampersand-calendar/ampersand-calendar.js');
-  var AmpersandSearchSelect = require('../ampersand-search-select/ampersand-search-select.js');
-  var AmpersandFilterTracker = require('../ampersand-filter-tracker/ampersand-filter-tracker.js');
+  var AmpersandTimeRange = require('ampersand-time-range');
+  var AmpersandCalendar = require('ampersand-calendar');
+  var AmpersandSearchSelect = require('ampersand-search-select');
+  var AmpersandFilterTracker = require('ampersand-filter-tracker');
 
   var ChartState = AmpersandState.extend({
     session: {
@@ -34,6 +34,10 @@
       drawValues: [ 'boolean', false, true ],
       drawLabels: [ 'boolean', false, true ],
       drawBarBackground: [ 'boolean', false, true ],
+      barMarginCoefficient: [ 'number', false, 0.2 ],
+      barGroupMarginCoefficient: [ 'number', false, 1.2 ],
+      lineGroupMarginCoefficient: [ 'number', false, 2 ],
+      areaGroupMarginCoefficient: [ 'number', false, 2 ],
         
       // Private Variables
       _view: 'object',
@@ -56,7 +60,7 @@
   });
 
   var ChartView = AmpersandView.extend({
-    template: '<svg></svg>',
+    template: '<div></div>',
     autoRender: true,
     initialize: function() {
       this.model._view = this;
@@ -71,15 +75,13 @@
               .style('display', 'inline-block');
 
             chart.select('button.ampersand-graph-filter-button')
-              .style('border-bottom-right-radius', 0)
-              .style('border-bottom-left-radius', 0);
+              .attr('class', 'ampersand-graph-filter-button ampersand-graph-filter-button-open');
           } else {
             chart.select('section.ampersand-graph-filter-window')
               .style('display', 'none');
 
             chart.select('button.ampersand-graph-filter-button')
-              .style('border-bottom-right-radius', undefined)
-              .style('border-bottom-left-radius', undefined);
+              .attr('class', 'ampersand-graph-filter-button');
           }
         }
       }
@@ -107,9 +109,22 @@
       var lineWidth = 25; 
       var lineGroupMargin = 50;
 
-      var chart = this.chart = d3.select(this.el)
+      var container = this.container = d3.select(this.el);
+      var chart = this.svg = container.append('svg')
         .attr('width', '100%')
         .attr('height', '25em');
+      
+      var y = d3.scale.linear()
+        .domain([ 0, d3.max(data, function(d) {
+          return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
+        }) ])
+        .range([ height - 100, 0 ]);
+
+      var yAxisGenerator = d3.svg.axis()
+        .scale(y)
+        .ticks(5)
+        .tickSize(0, 0)
+        .orient('left');
 
       this.renderData();
       
@@ -125,14 +140,22 @@
             ground.attr('x2', (2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin);
           break;
           case 'line':
+          case 'area':
             ground.attr('x2', (2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin);
           break;
       }
 
+      var yAxis = chart.append('svg')
+        .attr('class', 'ampersand-graph-y-axis')
+        .style('overflow', 'visible')
+        .attr('x', '2em')
+        .attr('y', '4.75em')
+        .call(yAxisGenerator);
+
       var title = chart.append('text')
         .attr('class', 'ampersand-graph-title')
         .attr('x', 0)
-        .attr('y', '1em')
+        .attr('y', '1.5em')
         .text(this.model.title);
 
       var legend = chart.append('g')
@@ -161,7 +184,7 @@
           .attr('y', 20)
           .text(value);
 
-        (function(legend, legendCircle, legendKey, legendBackground, index) {
+        (function(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground) {
           setTimeout(function() {
             var offset = 0;
             
@@ -179,7 +202,7 @@
             if (index === legendKey.length - 1) {
               var width = _.reduce(legendKey, function(result, n, key) {
                 return (isNaN(result) ? result[0][0].getBBox().width : result) + n[0][0].getBBox().width;
-              });
+              }, 0);
               width += 36 + 24 * index;
 
               legendBackground
@@ -197,13 +220,18 @@
                 break;
               }
             }
+            this.renderData();
+
+            yAxis.attr('x', yAxis.node().getBBox().width);
+            ground.attr('x1', yAxis.node().getBBox().width + 5);
           }.bind(this), 1);
-        }.bind(this))(legend, legendCircle, legendKey, legendBackground, index);
+        }.bind(this))(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground);
       }.bind(this));
 
       this.renderFilter();
     },
     renderFilter: function() {
+      var filterContainer = d3.select(this.el);
       var data = this.model._data.models;
       var label = this.model.label;
       var values = this.model.values;
@@ -215,34 +243,35 @@
       var lineWidth = 25; 
       var lineGroupMargin = 50;
 
-      var chart = this.chart = d3.select(this.el)
-        .attr('width', '100%')
-        .attr('height', '25em');
-
-      var filterForeignObject = chart.append('foreignObject')
-        .attr('class', 'ampersand-graph-filter-foreign-object')
-        .attr('x', (2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin);
-
-      var filterContainer = filterForeignObject.append('xhtml:body')
-        .attr('class', 'ampersand-graph-filter-body')
-        .style('position', 'relative');
-
       var filterButton = filterContainer.append('button')
         .attr('class', 'ampersand-graph-filter-button')
         .text('Filter');
+
+      var filterButtonArrow = filterButton.append('svg')
+        .attr('class', 'ampersand-graph-filter-button-arrow')
+        .attr('width', '1.4em')
+        .attr('height', '1em');
+
+      filterButtonArrow.append('line')
+        .attr('class', 'ampersand-graph-filter-button-arrow-line')
+        .attr('x1', '0.25em')
+        .attr('x2', '0.75em')
+        .attr('y1', '0.25em')
+        .attr('y2', '0.75em');
+
+      filterButtonArrow.append('line')
+        .attr('class', 'ampersand-graph-filter-button-arrow-line')
+        .attr('x1', '0.65em')
+        .attr('x2', '1.15em')
+        .attr('y1', '0.75em')
+        .attr('y2', '0.25em');
 
       var filterWindow = filterContainer.append('section')
         .attr('class', 'ampersand-graph-filter-window')
         .style('display', 'none');
 
-      var filterWindowLeft = filterWindow.append('section')
-        .attr('class', 'ampersand-graph-filter-window-left');
-
-      var filterWindowRight = filterWindow.append('section')
-        .attr('class', 'ampersand-graph-filter-window-right');
-
-      var filterTime = filterWindowLeft.append('section')
-        .attr('class', 'ampersand-graph-filter-time');
+      var filterTime = filterWindow.append('section')
+        .attr('class', 'ampersand-graph-filter-widget ampersand-graph-filter-time');
 
       filterTime.append('h6')
         .text('By time:');
@@ -252,8 +281,8 @@
 
       filterTime[0][0].appendChild(timeRangeView.el);
 
-      var filterDate = filterWindowLeft.append('section')
-        .attr('class', 'ampersand-graph-filter-date');
+      var filterDate = filterWindow.append('section')
+        .attr('class', 'ampersand-graph-filter-widget ampersand-graph-filter-date');
 
       filterDate.append('h6')
         .text('By date:');
@@ -263,8 +292,8 @@
 
       filterDate[0][0].appendChild(calendarView.el);
 
-      var filterPersonnel = filterWindowRight.append('section')
-        .attr('class', 'ampersand-graph-filter-personnel');
+      var filterPersonnel = filterWindow.append('section')
+        .attr('class', 'ampersand-graph-filter-widget ampersand-graph-filter-personnel');
 
       filterPersonnel.append('h6')
         .text('By agent/team:');
@@ -279,8 +308,8 @@
 
       filterPersonnel[0][0].appendChild(searchSelectView.el);
 
-      var filterSelections = filterWindowRight.append('section')
-        .attr('class', 'ampersand-graph-filter-selections');
+      var filterSelections = filterWindow.append('section')
+        .attr('class', 'ampersand-graph-filter-widget ampersand-graph-filter-selections');
 
       filterSelections.append('h6')
         .text('Filter selections:');
@@ -295,8 +324,8 @@
           },
           clearValues: [ 0, 1440 ],
           clear: function() {
-            this.startX = 20;
-            this.endX = this.width + 20;
+            this.startX = 0;
+            this.endX = this.width;
           }
         }, {
           model: calendarState,
@@ -349,21 +378,38 @@
       }
     },
     renderBarGraph: function() {
-      var chart = this.chart;
+      var chart = this.svg;
       var data = this.model._data.models;
       var label = this.model.label;
       var values = this.model.values;
+     
+      var yAxis = this.svg.select('svg.ampersand-graph-y-axis');
+      var yAxisOffset = yAxis.node() ? yAxis.node().getBBox().width : 0;
 
       var height = 320;
-      var barWidth = 25; 
-      var barGroupMargin = 30;
-      var barMargin = 5;
+      var barCount = data.length * values.length;
+      var graphWidth = this.container.node().getBoundingClientRect().width;
+      var a = this.model.barGroupMarginCoefficient;
+      var b = this.model.barMarginCoefficient;
+      var i = data.length;
+      var j = values.length;
+      var barWidth = (graphWidth - yAxisOffset) / ((2 + i * j) + a * (i - 1) + b * i * (j - 1));
+      var barGroupMargin = barWidth * a;
+      var barMargin = barWidth * b;
 
       var y = d3.scale.linear()
         .domain([ 0, d3.max(data, function(d) {
-          return Math.max.apply(null, _.remove(_.values(d.attributes), function(n) { return !isNaN(n); }));
+          return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
         }) ])
         .range([ height - 100, 0 ]);
+
+      var yAxisGenerator = d3.svg.axis()
+        .scale(y)
+        .ticks(5)
+        .tickSize(0, 0)
+        .orient('left');
+
+      yAxis.call(yAxisGenerator);
 
       var containers = chart.selectAll('g.ampersand-graph-bar-container')
         .data(data);
@@ -381,17 +427,20 @@
         .transition()
         .style('opacity', 1);
       
-      container
+      containers
         .attr('transform', function(d, i) {
-          return 'translate(' + ((i * values.length + 1) * barWidth + i * (values.length - 1) * barMargin + i * barGroupMargin) + ',24)';
+          return 'translate(' + ((i * values.length + 1) * barWidth + i * (values.length - 1) * barMargin + i * barGroupMargin + yAxisOffset / 2) + ',24)';
         });
 
       if (this.model.drawLabels) {
         container.append('text')
           .attr('class', 'ampersand-graph-label')
-          .attr('x', ((barWidth * values.length) + barMargin * (values.length - 1)) / 2)
           .attr('y', height - 50)
           .attr('dy', '1.25em');
+
+        containers.select('text.ampersand-graph-label')
+          .transition()
+          .attr('x', ((barWidth * values.length) + barMargin * (values.length - 1)) / 2);
       }
 
       containers.select('text.ampersand-graph-label')
@@ -399,12 +448,14 @@
 
       _.each(values, function(value, index) {
         if (this.model.drawBarBackground) {
-         container.append('rect')
-            .attr('class', 'ampersand-graph-bar-background')
+          container.append('rect')
+            .attr('class', 'ampersand-graph-bar-background ampersand-graph-bar-background-' + index)
             .attr('y', '1.5em')
-            .attr('x', (barWidth + barMargin) * index)
-            .attr('width', barWidth)
             .attr('height', height - 76);
+
+          containers.select('rect.ampersand-graph-bar-background-' + index)
+            .attr('x', (barWidth + barMargin) * index)
+            .attr('width', barWidth);
         }
 
         container.append('rect')
@@ -416,20 +467,21 @@
         if (this.model.drawValues) {
           container.append('text')
             .attr('class', 'ampersand-graph-value ampersand-graph-value-' + index)
-            .attr('x', barWidth * (index * 2 + 1) / 2 + barMargin * index)
             .attr('y', height - 50)
             .attr('dy', '-0.75em')
             .attr('dx', '-0.05em');
         }
 
         containers.select('rect.ampersand-graph-bar-' + index)
-          .attr('x', (barWidth + barMargin) * index)
           .transition()
+          .attr('x', (barWidth + barMargin) * index)
+          .attr('width', barWidth)
           .attr('y', function(d) { return y(d[value]) + 50; })
           .attr('height', function(d) { return height - 100 - y(d[value]); });
 
         containers.select('text.ampersand-graph-value-' + index)
           .transition()
+          .attr('x', barWidth * (index * 2 + 1) / 2 + barMargin * index)
           .attr('y', function(d) { return y(d[value]) + 50; })
           .text(function(d) { return d[value]; });
       }.bind(this));
@@ -447,7 +499,7 @@
         });
     },
     renderLineGraph: function() {
-      var chart = this.chart;
+      var chart = this.svg;
       var data = this.model._data.models;
 
       _.each(data, function(point, index) {
@@ -456,17 +508,30 @@
 
       var label = this.model.label;
       var values = this.model.values;
+     
+      var yAxis = this.svg.select('svg.ampersand-graph-y-axis');
+      var yAxisOffset = yAxis.node() ? yAxis.node().getBBox().width : 0;
 
       var height = 320;
-      var lineWidth = 25; 
-      var lineGroupMargin = 50;
-      var lineMargin = 5;
+      var graphWidth = this.container.node().getBoundingClientRect().width;
+      var a = this.model.lineGroupMarginCoefficient;
+      var i = data.length;
+      var lineWidth = (graphWidth - yAxisOffset) / ((2 + i) + a * (i - 1));
+      var lineGroupMargin = lineWidth * a;
 
       var y = d3.scale.linear()
         .domain([ 0, d3.max(data, function(d) {
-          return Math.max.apply(null, _.remove(_.values(d.attributes), function(n) { return !isNaN(n); }));
+          return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
         }) ])
         .range([ height - 100, 0 ]);
+
+      var yAxisGenerator = d3.svg.axis()
+        .scale(y)
+        .ticks(5)
+        .tickSize(0, 0)
+        .orient('left');
+
+      yAxis.call(yAxisGenerator);
 
       var areaFunction = d3.svg.area()
         .x(function(d) { return d.x; })
@@ -501,9 +566,9 @@
         .transition()
         .style('opacity', 1);
       
-      pathContainer
+      pathContainers
         .attr('transform', function(d, i) {
-          return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth) + ',24)';
+          return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth + yAxisOffset / 2) + ',24)';
         });
 
       container
@@ -511,17 +576,19 @@
         .transition()
         .style('opacity', 1);
       
-      container
+      containers
         .attr('transform', function(d, i) {
-          return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth) + ',24)';
+          return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth + yAxisOffset / 2) + ',24)';
         });
 
       if (this.model.drawLabels) {
         container.append('text')
           .attr('class', 'ampersand-graph-label')
-          .attr('x', lineWidth / 2)
           .attr('y', height - 50)
           .attr('dy', '1.25em');
+
+        containers.select('text.ampersand-graph-label')
+          .attr('x', lineWidth / 2);
       }
 
       containers.select('text.ampersand-graph-label')
@@ -609,7 +676,7 @@
         .attr('transform', function() { return 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin) / 2 - this.getBBox().width / 2) + ',' + (height + 20) + ')'; });
     },
     renderAreaGraph: function() {
-      var chart = this.chart;
+      var chart = this.svg;
       var data = this.model._data.models;
 
       _.each(data, function(point, index) {
@@ -618,17 +685,30 @@
 
       var label = this.model.label;
       var values = this.model.values;
+     
+      var yAxis = this.svg.select('svg.ampersand-graph-y-axis');
+      var yAxisOffset = yAxis.node() ? yAxis.node().getBBox().width : 0;
 
       var height = 320;
-      var areaWidth = 25; 
-      var areaGroupMargin = 50;
-      var areaMargin = 5;
+      var graphWidth = this.container.node().getBoundingClientRect().width;
+      var a = this.model.areaGroupMarginCoefficient;
+      var i = data.length;
+      var areaWidth = (graphWidth - yAxisOffset) / ((2 + i) + a * (i - 1));
+      var areaGroupMargin = areaWidth * a;
 
       var y = d3.scale.linear()
         .domain([ 0, d3.max(data, function(d) {
-          return Math.max.apply(null, _.remove(_.values(d.attributes), function(n) { return !isNaN(n); }));
+          return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
         }) ])
         .range([ height - 100, 0 ]);
+
+      var yAxisGenerator = d3.svg.axis()
+        .scale(y)
+        .ticks(5)
+        .tickSize(0, 0)
+        .orient('left');
+
+      yAxis.call(yAxisGenerator);
 
       var areaFunction = d3.svg.area()
         .x(function(d) { return d.x; })
@@ -652,17 +732,19 @@
         .transition()
         .style('opacity', 1);
       
-      container
+      containers
         .attr('transform', function(d, i) {
-          return 'translate(' + (i * (areaWidth + areaGroupMargin) + areaWidth) + ',24)';
+          return 'translate(' + (i * (areaWidth + areaGroupMargin) + areaWidth + yAxisOffset / 2) + ',24)';
         });
 
       if (this.model.drawLabels) {
         container.append('text')
           .attr('class', 'ampersand-graph-label')
-          .attr('x', areaWidth / 2)
           .attr('y', height - 50)
           .attr('dy', '1.25em');
+
+        containers.select('text.ampersand-graph-label')
+          .attr('x', areaWidth / 2);
       }
 
       containers.select('text.ampersand-graph-label')
@@ -719,7 +801,7 @@
           .text(function(d) { return d[value]; });
       }.bind(this));
 
-      chart.select('area.ampersand-graph-ground')
+      chart.select('line.ampersand-graph-ground')
         .transition()
         .attr('x2', (2 + data.length) * areaWidth + (data.length - 1) * areaGroupMargin);
 

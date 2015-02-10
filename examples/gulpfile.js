@@ -1,1 +1,0 @@
-gonads/hox-genes/gulp.hox

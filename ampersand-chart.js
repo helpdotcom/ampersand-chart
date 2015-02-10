@@ -36,10 +36,13 @@
       drawYAxisLabels: [ 'boolean', false, true ],
       drawYAxisGridLines: [ 'boolean', false, true ],
       drawBarBackground: [ 'boolean', false, true ],
+      drawCircleGraph: [ 'boolean', false, false ],
       barMarginCoefficient: [ 'number', false, 0.2 ],
       barGroupMarginCoefficient: [ 'number', false, 1.2 ],
       lineGroupMarginCoefficient: [ 'number', false, 2 ],
       areaGroupMarginCoefficient: [ 'number', false, 2 ],
+      circleGraphFunction: 'function',
+      circleGraphLabel: [ 'string', false, '' ],
         
       // Private Variables
       _view: 'object',
@@ -111,6 +114,8 @@
       var lineWidth = 25; 
       var lineGroupMargin = 50;
 
+      var circleGraphRadius = this.model.drawCircleGraph ? 110 : 0;
+
       var container = this.container = d3.select(this.el);
       var chart = this.svg = container.append('svg')
         .attr('width', '100%')
@@ -137,6 +142,58 @@
           .attr('x', '2em')
           .attr('y', '4.75em')
           .call(yAxisGenerator);
+      }
+
+      if (this.model.drawCircleGraph) {
+        this.circleSvg = this.svg.append('svg')
+          .attr('class', 'ampersand-graph-circle')
+          .attr('width', circleGraphRadius * 2)
+          .attr('height', '100%')
+          .attr('y', '3em');
+
+        var backgroundArcGenerator = d3.svg.arc()
+          .outerRadius(circleGraphRadius)
+          .innerRadius(circleGraphRadius - 10)
+          .startAngle(0)
+          .endAngle(Math.PI * 2);
+
+        this.circleSvg.append('path')
+          .attr('class', 'ampersand-graph-circle-background')
+          .attr('d', backgroundArcGenerator)
+          .attr('transform', 'translate(' + circleGraphRadius + ',' + circleGraphRadius + ')');
+
+        var foregroundArcGenerator = d3.svg.arc()
+          .outerRadius(circleGraphRadius)
+          .innerRadius(circleGraphRadius - 10)
+          .startAngle(0)
+          .endAngle(Math.PI * 3 / 4);
+
+        this.circleSvg.append('path')
+          .attr('class', 'ampersand-graph-circle-foreground')
+          .attr('d', foregroundArcGenerator)
+          .attr('transform', 'translate(' + circleGraphRadius + ',' + circleGraphRadius + ')');
+
+        this.circleSvg.append('text')
+          .attr('class', 'ampersand-graph-circle-text')
+          .attr('x', circleGraphRadius)
+          .attr('y', circleGraphRadius)
+          .text('42');
+
+
+        this.circleSvg.append('rect')
+          .attr('class', 'ampersand-graph-circle-label-background')
+          .attr('x', circleGraphRadius)
+          .attr('y', circleGraphRadius * 2 + 20)
+          .attr('rx', 20)
+          .attr('ry', 20)
+          .attr('width', circleGraphRadius * 2)
+          .attr('height', '2em');
+
+        this.circleSvg.append('text')
+          .attr('class', 'ampersand-graph-circle-label')
+          .attr('x', circleGraphRadius)
+          .attr('y', circleGraphRadius * 2 + 40)
+          .text(this.model.circleGraphLabel);
       }
       
       this.renderData();
@@ -217,12 +274,12 @@
               switch (this.model.chartType) {
                 case 'bar':
                   legend.attr('transform', 'translate(' +
-                    (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin) / 2 - width / 2) +
+                    (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin - width) / 2 - circleGraphRadius) +
                     ',' + (height + 20) + ')');
                 break;
                 case 'line':
                 case 'area':
-                  legend.attr('transform', 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin) / 2 - width / 2) + ',' + (height + 20) + ')');
+                  legend.attr('transform', 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin - width) / 2 - circleGraphRadius) + ',' + (height + 20) + ')');
                 break;
               }
             }
@@ -240,6 +297,13 @@
                 }
               });
               ground.attr('x1', yAxisOffset + 12);
+            }
+
+            if (this.model.drawCircleGraph) {
+              var rectWidth = this.circleSvg.select('text.ampersand-graph-circle-label').node().getBBox().width + 32;
+              this.circleSvg.select('rect.ampersand-graph-circle-label-background')
+                .attr('width', rectWidth)
+                .attr('transform', 'translate(-' + rectWidth / 2 + ',0)');
             }
           }.bind(this), 1);
         }.bind(this))(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground);
@@ -393,6 +457,30 @@
           this.renderAreaGraph();
         break;
       }
+
+      if (this.model.drawCircleGraph) {
+        this.renderCircleGraph();
+      }
+    },
+    renderCircleGraph: function() {
+      var circleGraphRadius = 110;
+
+      this.circleSvg
+        .attr('x', this.container.node().getBoundingClientRect().width - circleGraphRadius * 2);
+
+      var value = this.model.circleGraphFunction.call(this.model);
+
+      var foregroundArcGenerator = d3.svg.arc()
+        .outerRadius(circleGraphRadius)
+        .innerRadius(circleGraphRadius - 10)
+        .startAngle(0)
+        .endAngle(Math.PI * 2 * value);
+
+      this.circleSvg.select('text.ampersand-graph-circle-text')
+        .text(Math.round(value * 100));
+
+      this.circleSvg.select('path.ampersand-graph-circle-foreground')
+        .attr('d', foregroundArcGenerator);
     },
     renderBarGraph: function() {
       var chart = this.svg;
@@ -400,6 +488,9 @@
       var label = this.model.label;
       var values = this.model.values;
      
+      var circleGraphRadius = this.model.drawCircleGraph ? 110 : 0;
+      var circleGraphPadding = this.model.drawCircleGraph ? 70 : 0;
+
       var yAxis = this.svg.select('svg.ampersand-graph-y-axis');
       var yAxisOffset = 0;
       yAxis.selectAll('text').each(function() {
@@ -413,7 +504,7 @@
       var b = this.model.barMarginCoefficient;
       var i = data.length;
       var j = values.length;
-      var barWidth = (graphWidth - yAxisOffset) / ((2 + i * j) + a * (i - 1) + b * i * (j - 1));
+      var barWidth = Math.max((graphWidth - yAxisOffset - circleGraphRadius * 2 - circleGraphPadding) / ((2 + i * j) + a * (i - 1) + b * i * (j - 1)), 0);
       var barGroupMargin = barWidth * a;
       var barMargin = barWidth * b;
 
@@ -427,7 +518,7 @@
         var yAxisGenerator = d3.svg.axis()
           .scale(y)
           .ticks(5)
-          .tickSize(this.model.drawYAxisGridLines ? -graphWidth + yAxisOffset * 2.6 : 0, 0)
+          .tickSize(this.model.drawYAxisGridLines ? -graphWidth + yAxisOffset * 2.6 + circleGraphRadius * 2 + circleGraphPadding : 0, 0)
           .tickPadding(12)
           .orient('left');
 
@@ -517,7 +608,7 @@
         .transition()
         .attr('transform', function() {
           return 'translate(' +
-            (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin) / 2 - this.getBBox().width / 2) +
+            (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin - this.getBBox().width) / 2) +
             ',' + (height + 20) + ')';
         });
     },

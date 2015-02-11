@@ -154,7 +154,7 @@
 
         var backgroundArcGenerator = d3.svg.arc()
           .outerRadius(circleGraphRadius)
-          .innerRadius(circleGraphRadius - 10)
+          .innerRadius(circleGraphRadius - 12)
           .startAngle(0)
           .endAngle(Math.PI * 2);
 
@@ -163,23 +163,11 @@
           .attr('d', backgroundArcGenerator)
           .attr('transform', 'translate(' + circleGraphRadius + ',' + circleGraphRadius + ')');
 
-        var foregroundArcGenerator = d3.svg.arc()
-          .outerRadius(circleGraphRadius)
-          .innerRadius(circleGraphRadius - 10)
-          .startAngle(0)
-          .endAngle(Math.PI * 3 / 4);
-
-        this.circleSvg.append('path')
-          .attr('class', 'ampersand-graph-circle-foreground')
-          .attr('d', foregroundArcGenerator)
-          .attr('transform', 'translate(' + circleGraphRadius + ',' + circleGraphRadius + ')');
-
         this.circleSvg.append('text')
           .attr('class', 'ampersand-graph-circle-text')
           .attr('x', circleGraphRadius)
           .attr('y', circleGraphRadius)
           .text('42');
-
 
         this.circleSvg.append('rect')
           .attr('class', 'ampersand-graph-circle-label-background')
@@ -488,17 +476,33 @@
 
       var value = this.model.circleGraphFunction.call(this.model);
 
-      var foregroundArcGenerator = d3.svg.arc()
-        .outerRadius(circleGraphRadius)
-        .innerRadius(circleGraphRadius - 10)
-        .startAngle(0)
-        .endAngle(Math.PI * 2 * value);
-
       this.circleSvg.select('text.ampersand-graph-circle-text')
-        .text(Math.round(value * 100));
+        .text(value[0]);
 
-      this.circleSvg.select('path.ampersand-graph-circle-foreground')
-        .attr('d', foregroundArcGenerator);
+      var data = _.rest(value);
+
+      var arcs = this.circleSvg.selectAll('path.ampersand-graph-circle-foreground')
+        .data(data);
+
+      var arc = arcs.enter().append('path')
+        .attr('transform', 'translate(' + circleGraphRadius + ',' + circleGraphRadius + ')');
+
+      arc.each(function(d, i) {
+         d3.select(this)
+          .attr('class', 'ampersand-graph-circle-foreground ampersand-graph-circle-foreground-' + i);
+      });
+
+      arcs.each(function(d, i) {
+         var foregroundArcGenerator = d3.svg.arc()
+          .outerRadius(circleGraphRadius)
+          .innerRadius(circleGraphRadius - 12)
+          .startAngle(i === 0 ? 0 : Math.PI * 2 * data[i - 1])
+          .endAngle(Math.PI * 2 * (i === 0 ? data[i] : data[i] + data[i - 1]));
+
+         d3.select(this)
+          .transition()
+          .attr('d', foregroundArcGenerator);
+      });
     },
     renderBarGraph: function() {
       var chart = this.svg;

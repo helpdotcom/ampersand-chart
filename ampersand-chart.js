@@ -496,8 +496,8 @@
          var foregroundArcGenerator = d3.svg.arc()
           .outerRadius(circleGraphRadius)
           .innerRadius(circleGraphRadius - 12)
-          .startAngle(i === 0 ? 0 : Math.PI * 2 * data[i - 1])
-          .endAngle(Math.PI * 2 * (i === 0 ? data[i] : data[i] + data[i - 1]));
+          .startAngle(i === 0 ? 0 : Math.PI * 2 * _.reduce(_.take(data, i), function(sum, n) { return sum + n; }))
+          .endAngle(Math.PI * 2 * _.reduce(_.take(data, i + 1), function(sum, n) { return sum + n; }));
 
          d3.select(this)
           .transition()

@@ -315,6 +315,14 @@
         }.bind(this))(yAxis, ground);
       }
 
+      chart.append('text')
+        .attr('class', 'ampersand-graph-no-data')
+        .attr('x', '50%')
+        .attr('y', '50%')
+        .attr('dy', '-4em')
+        .style('display', 'none')
+        .text('No matching data found.');
+
       this.renderFilter();
     },
     renderFilter: function() {
@@ -452,20 +460,29 @@
       filterSelections[0][0].appendChild(filterTrackerView.el);
     },
     renderData: function() {
-      switch (this.model.chartType) {
-        case 'bar':
-          this.renderBarGraph();
-        break;
-        case 'line':
-          this.renderLineGraph();
-        break;
-        case 'area':
-          this.renderAreaGraph();
-        break;
-      }
+      var data = this.model._data.models;
+      if (data.length > 0) {
+        switch (this.model.chartType) {
+          case 'bar':
+            this.renderBarGraph();
+          break;
+          case 'line':
+            this.renderLineGraph();
+          break;
+          case 'area':
+            this.renderAreaGraph();
+          break;
+        }
 
-      if (this.model.drawCircleGraph) {
-        this.renderCircleGraph();
+        if (this.model.drawCircleGraph) {
+          this.renderCircleGraph();
+        }
+
+        this.svg.select('text.ampersand-graph-no-data')
+          .style('display', 'none');
+      } else {
+        this.svg.select('text.ampersand-graph-no-data')
+          .style('display', undefined);
       }
     },
     renderCircleGraph: function() {
@@ -561,8 +578,6 @@
               });
               chart.select('line.ampersand-graph-ground').attr('x1', yAxisOffset + 12);
             }
-           
-            this.renderData();
           }.bind(this), 1);
         }.bind(this))(yAxis, chart);
       }
@@ -709,8 +724,6 @@
               });
               chart.select('line.ampersand-graph-ground').attr('x1', yAxisOffset + 12);
             }
-           
-            this.renderData();
           }.bind(this), 1);
         }.bind(this))(yAxis, chart);
       }
@@ -912,8 +925,6 @@
               });
               chart.select('line.ampersand-graph-ground').attr('x1', yAxisOffset + 12);
             }
-           
-            this.renderData();
           }.bind(this), 1);
         }.bind(this))(yAxis, chart);
       }

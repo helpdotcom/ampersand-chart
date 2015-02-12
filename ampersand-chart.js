@@ -545,6 +545,26 @@
           .orient('left');
 
         yAxis.call(yAxisGenerator);
+
+        (function(yAxis, chart) {
+          setTimeout(function() {
+            if (yAxis) {
+              var yAxisOffset = 0;
+              yAxis.selectAll('text').each(function() {
+                yAxisOffset = Math.max(this.getBBox().width, yAxisOffset);
+              });
+              yAxis.attr('x', yAxisOffset + 12);
+              yAxis.selectAll('line').each(function(d) {
+                if (d === 0) {
+                  d3.select(this).remove();
+                }
+              });
+              chart.select('line.ampersand-graph-ground').attr('x1', yAxisOffset + 12);
+            }
+           
+            this.renderData();
+          }.bind(this), 1);
+        }.bind(this))(yAxis, chart);
       }
 
       var containers = chart.selectAll('g.ampersand-graph-bar-container')
@@ -673,6 +693,26 @@
           .orient('left');
 
         yAxis.call(yAxisGenerator);
+
+        (function(yAxis, chart) {
+          setTimeout(function() {
+            if (yAxis) {
+              var yAxisOffset = 0;
+              yAxis.selectAll('text').each(function() {
+                yAxisOffset = Math.max(this.getBBox().width, yAxisOffset);
+              });
+              yAxis.attr('x', yAxisOffset + 12);
+              yAxis.selectAll('line').each(function(d) {
+                if (d === 0) {
+                  d3.select(this).remove();
+                }
+              });
+              chart.select('line.ampersand-graph-ground').attr('x1', yAxisOffset + 12);
+            }
+           
+            this.renderData();
+          }.bind(this), 1);
+        }.bind(this))(yAxis, chart);
       }
 
       var areaFunction = d3.svg.area()
@@ -856,6 +896,26 @@
           .orient('left');
 
         yAxis.call(yAxisGenerator);
+
+        (function(yAxis, chart) {
+          setTimeout(function() {
+            if (yAxis) {
+              var yAxisOffset = 0;
+              yAxis.selectAll('text').each(function() {
+                yAxisOffset = Math.max(this.getBBox().width, yAxisOffset);
+              });
+              yAxis.attr('x', yAxisOffset + 12);
+              yAxis.selectAll('line').each(function(d) {
+                if (d === 0) {
+                  d3.select(this).remove();
+                }
+              });
+              chart.select('line.ampersand-graph-ground').attr('x1', yAxisOffset + 12);
+            }
+           
+            this.renderData();
+          }.bind(this), 1);
+        }.bind(this))(yAxis, chart);
       }
 
       var areaFunction = d3.svg.area()

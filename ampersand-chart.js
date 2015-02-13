@@ -150,7 +150,8 @@
           .attr('class', 'ampersand-graph-circle')
           .attr('width', circleGraphRadius * 2)
           .attr('height', '100%')
-          .attr('y', '3em');
+          .attr('y', '3em')
+          .attr('x', this.container.node().getBoundingClientRect().width - circleGraphRadius * 2);
 
         var backgroundArcGenerator = d3.svg.arc()
           .outerRadius(circleGraphRadius)

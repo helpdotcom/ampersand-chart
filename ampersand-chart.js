@@ -486,6 +486,39 @@
           .style('display', undefined);
       }
     },
+    renderYAxis: function(y, graphWidth, yAxisOffset, circleGraphRadius, circleGraphPadding) {
+      if (!this.model.drawYAxisLabels) {
+        return;
+      }
+
+      var yAxis = this.svg.select('svg.ampersand-graph-y-axis');
+      var yAxisGenerator = d3.svg.axis()
+        .scale(y)
+        .ticks(5)
+        .tickSize(this.model.drawYAxisGridLines ? -graphWidth + yAxisOffset * 2.6 + circleGraphRadius * 2 + circleGraphPadding : 0, 0)
+        .tickPadding(12)
+        .orient('left');
+
+      yAxis.call(yAxisGenerator);
+
+      (function(yAxis) {
+        setTimeout(function() {
+          if (yAxis) {
+            var yAxisOffset = 0;
+            yAxis.selectAll('text').each(function() {
+              yAxisOffset = Math.max(this.getBBox().width, yAxisOffset);
+            });
+            yAxis.attr('x', yAxisOffset + 12);
+            yAxis.selectAll('line').each(function(d) {
+              if (d === 0) {
+                d3.select(this).remove();
+              }
+            });
+            this.svg.select('line.ampersand-graph-ground').attr('x1', yAxisOffset + 12);
+          }
+        }.bind(this), 1);
+      }.bind(this))(yAxis);
+    },
     renderCircleGraph: function() {
       var circleGraphRadius = 110;
 
@@ -554,34 +587,7 @@
         }) ])
         .range([ height - 100, 0 ]);
 
-      if (this.model.drawYAxisLabels) {
-        var yAxisGenerator = d3.svg.axis()
-          .scale(y)
-          .ticks(5)
-          .tickSize(this.model.drawYAxisGridLines ? -graphWidth + yAxisOffset * 2.6 + circleGraphRadius * 2 + circleGraphPadding : 0, 0)
-          .tickPadding(12)
-          .orient('left');
-
-        yAxis.call(yAxisGenerator);
-
-        (function(yAxis, chart) {
-          setTimeout(function() {
-            if (yAxis) {
-              var yAxisOffset = 0;
-              yAxis.selectAll('text').each(function() {
-                yAxisOffset = Math.max(this.getBBox().width, yAxisOffset);
-              });
-              yAxis.attr('x', yAxisOffset + 12);
-              yAxis.selectAll('line').each(function(d) {
-                if (d === 0) {
-                  d3.select(this).remove();
-                }
-              });
-              chart.select('line.ampersand-graph-ground').attr('x1', yAxisOffset + 12);
-            }
-          }.bind(this), 1);
-        }.bind(this))(yAxis, chart);
-      }
+      this.renderYAxis(y, graphWidth, yAxisOffset, circleGraphRadius, circleGraphPadding);
 
       var containers = chart.selectAll('g.ampersand-graph-bar-container')
         .data(data);
@@ -700,34 +706,7 @@
         }) ])
         .range([ height - 100, 0 ]);
 
-      if (this.model.drawYAxisLabels) {
-        var yAxisGenerator = d3.svg.axis()
-          .scale(y)
-          .ticks(5)
-          .tickSize(this.model.drawYAxisGridLines ? -graphWidth + yAxisOffset * 2.6 : 0, 0)
-          .tickPadding(12)
-          .orient('left');
-
-        yAxis.call(yAxisGenerator);
-
-        (function(yAxis, chart) {
-          setTimeout(function() {
-            if (yAxis) {
-              var yAxisOffset = 0;
-              yAxis.selectAll('text').each(function() {
-                yAxisOffset = Math.max(this.getBBox().width, yAxisOffset);
-              });
-              yAxis.attr('x', yAxisOffset + 12);
-              yAxis.selectAll('line').each(function(d) {
-                if (d === 0) {
-                  d3.select(this).remove();
-                }
-              });
-              chart.select('line.ampersand-graph-ground').attr('x1', yAxisOffset + 12);
-            }
-          }.bind(this), 1);
-        }.bind(this))(yAxis, chart);
-      }
+      this.renderYAxis(y, graphWidth, yAxisOffset, 0, 0);
 
       var areaFunction = d3.svg.area()
         .x(function(d) { return d.x; })
@@ -901,34 +880,7 @@
         }) ])
         .range([ height - 100, 0 ]);
 
-      if (this.model.drawYAxisLabels) {
-        var yAxisGenerator = d3.svg.axis()
-          .scale(y)
-          .ticks(5)
-          .tickSize(this.model.drawYAxisGridLines ? -graphWidth + yAxisOffset * 2.6 : 0, 0)
-          .tickPadding(12)
-          .orient('left');
-
-        yAxis.call(yAxisGenerator);
-
-        (function(yAxis, chart) {
-          setTimeout(function() {
-            if (yAxis) {
-              var yAxisOffset = 0;
-              yAxis.selectAll('text').each(function() {
-                yAxisOffset = Math.max(this.getBBox().width, yAxisOffset);
-              });
-              yAxis.attr('x', yAxisOffset + 12);
-              yAxis.selectAll('line').each(function(d) {
-                if (d === 0) {
-                  d3.select(this).remove();
-                }
-              });
-              chart.select('line.ampersand-graph-ground').attr('x1', yAxisOffset + 12);
-            }
-          }.bind(this), 1);
-        }.bind(this))(yAxis, chart);
-      }
+      this.renderYAxis(y, graphWidth, yAxisOffset, 0, 0);
 
       var areaFunction = d3.svg.area()
         .x(function(d) { return d.x; })

@@ -28,12 +28,14 @@
       timeRangeFilter: 'function',
       calendarFilter: 'function',
       searchSelectFilter: 'function',
+      filterOnApply: [ 'function', false, _.constant(_.noop) ],
 
       // GUI Settings
       chartType:  [ 'string', false, 'bar' ],
       drawValues: [ 'boolean', false, true ],
       drawLegend: [ 'boolean', false, true ],
       drawXAxisLabels: [ 'boolean', false, true ],
+      drawAllXAxisLabels: [ 'boolean', false, false ],
       drawYAxisLabels: [ 'boolean', false, true ],
       drawYAxisGridLines: [ 'boolean', false, true ],
       drawBarBackground: [ 'boolean', false, true ],
@@ -117,7 +119,16 @@
 
       var circleGraphRadius = this.model.drawCircleGraph ? 110 : 0;
 
-      var container = this.container = d3.select(this.el);
+      d3.select(this.el)
+        .style('position', 'relative');
+
+      var container = this.container = d3.select(this.el).append('div')
+        .attr('class', 'ampersand-graph-container')
+        .style('width', '100%')
+        .style('display', 'inline-block')
+        .style('overflow-x', 'auto')
+        .style('overflow-y', 'hidden');
+
       var chart = this.svg = container.append('svg')
         .attr('width', '100%')
         .attr('height', this.model.drawLegend ? '25em' : '21em');
@@ -414,7 +425,7 @@
         handles: [{
           model: timeRangeState,
           props: [ 'startTime', 'endTime' ],
-          filter: this.timeRangeFilter,
+          filter: this.model.timeRangeFilter,
           output: function() {
             return this.intToTimeString(this.startTime) + ' - ' + this.intToTimeString(this.endTime);
           },
@@ -426,7 +437,7 @@
         }, {
           model: calendarState,
           props: [ 'startDate', 'endDate' ],
-          filter: this.calendarFilter,
+          filter: this.model.calendarFilter,
           output: function() {
             var start = this.startDate !== null ? this.startDate.format('MMMM Do') : '';
 
@@ -444,7 +455,7 @@
         }, {
           model: searchSelectState,
           props: [ '_selected' ],
-          filter: this.searchSelectFilter,
+          filter: this.model.searchSelectFilter,
           output: function() {
             return this.selected.map(_.property(this.queryAttribute)).join(', ');
           },
@@ -456,6 +467,10 @@
           }
         }]
       });
+      filterTrackerState.onApply = function(props) { 
+        this.model.filterOnApply(props);
+        this.toggleFilterWindow();
+      }.bind(this);
       var filterTrackerView = new AmpersandFilterTracker.View({ model: filterTrackerState });
 
       filterSelections[0][0].appendChild(filterTrackerView.el);
@@ -482,6 +497,10 @@
         this.svg.select('text.ampersand-graph-no-data')
           .style('display', 'none');
       } else {
+        this.svg.selectAll('g.ampersand-graph-bar-container').remove();
+        this.svg.selectAll('g.ampersand-graph-line-container').remove();
+        this.svg.selectAll('g.ampersand-graph-line-area-container').remove();
+        this.svg.selectAll('g.ampersand-graph-area-container').remove();
         this.svg.select('text.ampersand-graph-no-data')
           .style('display', undefined);
       }
@@ -518,6 +537,35 @@
           }
         }.bind(this), 1);
       }.bind(this))(yAxis);
+    },
+    renderXAxis: function(data, container, containers, height, sectionWidth, sectionMargin, values, label) {
+      if (!this.model.drawXAxisLabels) {
+        return;
+      }
+
+      container.append('text')
+        .attr('class', 'ampersand-graph-label')
+        .style('display', 'none')
+        .style('opacity', 0)
+        .attr('y', height - 46)
+        .attr('dy', '1.25em');
+
+      _.defer(function(data, containers, sectionWidth, values, sectionMargin, label) {
+        var width = Math.ceil(_.reduce(data, function(max, item) { return Math.max(max, item[label].toString().length); }, 0) * 6.25);
+        var sectionGroupWidth = (sectionWidth * values.length) + sectionMargin * (values.length - 1);
+        containers.select('text.ampersand-graph-label')
+          .style('opacity', 0)
+          .style('display', function(d, i) {
+            if (width < sectionGroupWidth || this.model.drawAllXAxisLabels) {
+              return undefined;
+            }
+
+            return i % Math.ceil(width / sectionGroupWidth) === 0 ? undefined : 'none';
+          }.bind(this))
+          .transition()
+          .style('opacity', 1)
+          .attr('x', sectionMargin === 0 ? sectionWidth / 2 : ((sectionWidth * values.length) + sectionMargin * (values.length - 1)) / 2);
+      }.bind(this), data, containers, sectionWidth, values, sectionMargin, label);
     },
     renderCircleGraph: function() {
       var circleGraphRadius = 110;
@@ -610,16 +658,7 @@
           return 'translate(' + ((i * values.length + 1) * barWidth + i * (values.length - 1) * barMargin + i * barGroupMargin + yAxisOffset / 2) + ',24)';
         });
 
-      if (this.model.drawXAxisLabels) {
-        container.append('text')
-          .attr('class', 'ampersand-graph-label')
-          .attr('y', height - 46)
-          .attr('dy', '1.25em');
-
-        containers.select('text.ampersand-graph-label')
-          .transition()
-          .attr('x', ((barWidth * values.length) + barMargin * (values.length - 1)) / 2);
-      }
+      this.renderXAxis(data, container, containers, height, barWidth, barMargin, values, label);
 
       containers.select('text.ampersand-graph-label')
         .text(function(d) { return d[label]; });
@@ -756,15 +795,7 @@
           return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth + yAxisOffset) + ',24)';
         });
 
-      if (this.model.drawXAxisLabels) {
-        container.append('text')
-          .attr('class', 'ampersand-graph-label')
-          .attr('y', height - 46)
-          .attr('dy', '1.25em');
-
-        containers.select('text.ampersand-graph-label')
-          .attr('x', lineWidth / 2);
-      }
+      this.renderXAxis(data, container, containers, height, lineWidth, 0, values, label);
 
       containers.select('text.ampersand-graph-label')
         .text(function(d) { return d[label]; });
@@ -909,15 +940,7 @@
           return 'translate(' + (i * (areaWidth + areaGroupMargin) + areaWidth + yAxisOffset) + ',24)';
         });
 
-      if (this.model.drawXAxisLabels) {
-        container.append('text')
-          .attr('class', 'ampersand-graph-label')
-          .attr('y', height - 46)
-          .attr('dy', '1.25em');
-
-        containers.select('text.ampersand-graph-label')
-          .attr('x', areaWidth / 2);
-      }
+      this.renderXAxis(data, container, containers, height, areaWidth, 0, values, label);
 
       containers.select('text.ampersand-graph-label')
         .text(function(d) { return d[label]; });

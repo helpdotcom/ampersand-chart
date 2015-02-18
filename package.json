@@ -25,7 +25,7 @@
   "homepage": "https://github.com/helpdotcom/ampersand-chart",
   "dependencies": {
     "ampersand-calendar": "^0.1.0",
-    "ampersand-filter-tracker": "^0.1.0",
+    "ampersand-filter-tracker": "^0.1.1",
     "ampersand-search-select": "^0.1.0",
     "ampersand-state": "^4.4.4",
     "ampersand-subcollection": "^2.0.1",

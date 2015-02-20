@@ -30,6 +30,12 @@
       searchSelectFilter: 'function',
       filterOnApply: [ 'function', false, _.constant(_.noop) ],
 
+      // Filter State
+      timeRangeState: 'state',
+      calendarState: 'state',
+      searchSelectState: 'state',
+      filterTrackerState: 'state',
+
       // GUI Settings
       chartType:  [ 'string', false, 'bar' ],
       drawValues: [ 'boolean', false, true ],
@@ -383,7 +389,7 @@
       filterTime.append('h6')
         .text('By time:');
 
-      var timeRangeState = new AmpersandTimeRange.State();
+      var timeRangeState = this.model.timeRangeState = new AmpersandTimeRange.State();
       var timeRangeView = new AmpersandTimeRange.View({ model: timeRangeState });
 
       filterTime[0][0].appendChild(timeRangeView.el);
@@ -394,7 +400,7 @@
       filterDate.append('h6')
         .text('By date:');
 
-      var calendarState = new AmpersandCalendar.State();
+      var calendarState = this.model.calendarState = new AmpersandCalendar.State();
       var calendarView = new AmpersandCalendar.View({ model: calendarState });
 
       filterDate[0][0].appendChild(calendarView.el);
@@ -405,7 +411,7 @@
       filterPersonnel.append('h6')
         .text('By agent/team:');
 
-      var searchSelectState = new AmpersandSearchSelect.State({
+      var searchSelectState = this.model.searchSelectState = new AmpersandSearchSelect.State({
         data: this.model.searchData,
         idAttribute: this.model.searchIdAttribute,
         imageAttribute: this.model.searchImageAttribute,
@@ -421,7 +427,7 @@
       filterSelections.append('h6')
         .text('Filter selections:');
 
-      var filterTrackerState = new AmpersandFilterTracker.State({
+      var filterTrackerState = this.model.filterTrackerState = new AmpersandFilterTracker.State({
         handles: [{
           model: timeRangeState,
           props: [ 'startTime', 'endTime' ],
@@ -467,9 +473,11 @@
           }
         }]
       });
-      filterTrackerState.onApply = function(props) { 
+      filterTrackerState.onApply = function(props, options) { 
         this.model.filterOnApply(props);
-        this.toggleFilterWindow();
+        if (options.doNotToggle !== true) {
+          this.toggleFilterWindow();
+        }
       }.bind(this);
       var filterTrackerView = new AmpersandFilterTracker.View({ model: filterTrackerState });
 

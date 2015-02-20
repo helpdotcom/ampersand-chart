@@ -31,10 +31,10 @@
       filterOnApply: [ 'function', false, _.constant(_.noop) ],
 
       // Filter State
-      timeRangeState: 'object',
-      calendarState: 'object',
-      searchSelectState: 'object',
-      filterTrackerState: 'object',
+      timeRangeState: 'state',
+      calendarState: 'state',
+      searchSelectState: 'state',
+      filterTrackerState: 'state',
 
       // GUI Settings
       chartType:  [ 'string', false, 'bar' ],

@@ -562,7 +562,6 @@
         var width = Math.ceil(_.reduce(data, function(max, item) { return Math.max(max, item[label].toString().length); }, 0) * 6.25);
         var sectionGroupWidth = (sectionWidth * values.length) + sectionMargin * (values.length - 1);
         containers.select('text.ampersand-graph-label')
-          .style('opacity', 0)
           .style('display', function(d, i) {
             if (width < sectionGroupWidth || this.model.drawAllXAxisLabels) {
               return undefined;

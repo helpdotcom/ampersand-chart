@@ -17,6 +17,7 @@
       title: 'string',
       values: 'array',
       label: 'string',
+      range: 'array',
 
       // Search Settings
       searchData: 'object',
@@ -140,9 +141,9 @@
         .attr('height', this.model.drawLegend ? '25em' : '21em');
       
       var y = d3.scale.linear()
-        .domain([ 0, d3.max(data, function(d) {
+        .domain(_.result(this.model, 'range', [ 0, d3.max(data, function(d) {
           return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
-        }) ])
+        }) ]))
         .range([ height - 100, 0 ]);
 
       var yAxis = null;
@@ -307,11 +308,6 @@
                 yAxisOffset = Math.max(this.getBBox().width, yAxisOffset);
               });
               yAxis.attr('x', yAxisOffset + 12);
-              yAxis.selectAll('line').each(function(d) {
-                if (d === 0) {
-                  d3.select(this).remove();
-                }
-              });
               ground.attr('x1', yAxisOffset + 12);
             }
            
@@ -536,11 +532,6 @@
               yAxisOffset = Math.max(this.getBBox().width, yAxisOffset);
             });
             yAxis.attr('x', yAxisOffset + 12);
-            yAxis.selectAll('line').each(function(d) {
-              if (d === 0) {
-                d3.select(this).remove();
-              }
-            });
             this.svg.select('line.ampersand-graph-ground').attr('x1', yAxisOffset + 12);
           }
         }.bind(this), 1);
@@ -637,9 +628,9 @@
       var barMargin = barWidth * b;
 
       var y = d3.scale.linear()
-        .domain([ 0, d3.max(data, function(d) {
+        .domain(_.result(this.model, 'range', [ 0, d3.max(data, function(d) {
           return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
-        }) ])
+        }) ]))
         .range([ height - 100, 0 ]);
 
       this.renderYAxis(y, graphWidth, yAxisOffset, circleGraphRadius, circleGraphPadding);
@@ -700,8 +691,8 @@
           .transition()
           .attr('x', (barWidth + barMargin) * index)
           .attr('width', barWidth)
-          .attr('y', function(d) { return y(d[value]) + 50; })
-          .attr('height', function(d) { return height - 100 - y(d[value]); });
+          .attr('y', function(d) { return y(Math.max(d[value], 0)) + 50; })
+          .attr('height', function(d) { return Math.abs(y(0) - y(d[value])); });
 
         containers.select('text.ampersand-graph-value-' + index)
           .transition()
@@ -747,9 +738,9 @@
       var lineGroupMargin = lineWidth * a;
 
       var y = d3.scale.linear()
-        .domain([ 0, d3.max(data, function(d) {
+        .domain(_.result(this.model, 'range', [ 0, d3.max(data, function(d) {
           return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
-        }) ])
+        }) ]))
         .range([ height - 100, 0 ]);
 
       this.renderYAxis(y, graphWidth, yAxisOffset, 0, 0);
@@ -913,9 +904,9 @@
       var areaGroupMargin = areaWidth * a;
 
       var y = d3.scale.linear()
-        .domain([ 0, d3.max(data, function(d) {
+        .domain(_.result(this.model, 'range', [ 0, d3.max(data, function(d) {
           return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
-        }) ])
+        }) ]))
         .range([ height - 100, 0 ]);
 
       this.renderYAxis(y, graphWidth, yAxisOffset, 0, 0);

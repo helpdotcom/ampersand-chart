@@ -145,6 +145,14 @@
         .style('overflow-x', 'auto')
         .style('overflow-y', 'hidden');
 
+      if (this.model.chartType === 'count') {
+        container.append('h6')
+          .attr('class', 'ampersand-graph-title')
+          .text(this.model.title);
+        this.renderFilter();
+        return true;
+      }
+
       var chart;
       if (this.model.direction === 'vertical') {
         chart = this.svg = container.append('svg')
@@ -514,6 +522,12 @@
     },
     renderData: function() {
       var data = this.model._data.models;
+
+      if (this.model.chartType === 'count') {
+        this.renderCountGraph();
+        return;
+      }
+
       if (data.length > 0) {
         switch (this.model.chartType) {
           case 'bar':
@@ -633,6 +647,39 @@
           .transition()
           .attr('d', foregroundArcGenerator);
       });
+    },
+    renderCountGraph: function() {
+      var data = this.model._data.models;
+      var label = this.model.label;
+      var max = d3.max(data, function(d) { return d.count; });
+
+      var containers = this.container.selectAll('div.ampersand-graph-count-container')
+        .data(data);
+
+      containers.exit()
+        .remove();
+
+      var container = containers.enter().append('div')
+        .attr('class', 'ampersand-graph-count-container');
+
+      container
+        .style('opacity', 0)
+        .transition()
+        .style('opacity', 1);
+
+      container.append('div')
+        .attr('class', 'ampersand-graph-count-number');
+
+      containers.select('div.ampersand-graph-count-number')
+        .text(function(d) { return d.count; })
+        .transition()
+        .style('opacity', function(d) { return d.count / max; });
+
+      container.append('div')
+        .attr('class', 'ampersand-graph-count-label');
+
+      containers.select('div.ampersand-graph-count-label')
+        .text(function(d) { return d[label]; });
     },
     renderHorizontalBarGraph: function() {
       var data = this.model._data.models;

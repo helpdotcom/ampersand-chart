@@ -10,11 +10,15 @@
   var AmpersandSearchSelect = require('ampersand-search-select');
   var AmpersandFilterTracker = require('ampersand-filter-tracker');
 
+  var yTopOffset = 66;
+  var yBottomOffset = 34;
+
   var ChartState = AmpersandState.extend({
     session: {
       // Data Settings
       data: 'object',
       title: 'string',
+      unit: [ 'string', false, '' ],
       values: 'array',
       label: 'string',
       range: 'array',
@@ -126,7 +130,7 @@
       var label = this.model.label;
       var values = this.model.values;
 
-      var height = 320;
+      var height = 336;
       var barWidth = 25; 
       var barGroupMargin = 30;
       var barMargin = 5;
@@ -163,6 +167,7 @@
       var yAxis = null;
       var ground = null;
       var title = null;
+      var unit = null;
 
       if (this.model.direction === 'vertical') {
         var y = d3.scale.linear()
@@ -182,7 +187,7 @@
             .attr('class', 'ampersand-graph-y-axis')
             .style('overflow', 'visible')
             .attr('x', '2em')
-            .attr('y', '4.75em')
+            .attr('y', '5.75em')
             .call(yAxisGenerator);
         }
 
@@ -191,7 +196,7 @@
             .attr('class', 'ampersand-graph-circle')
             .attr('width', circleGraphRadius * 2)
             .attr('height', '100%')
-            .attr('y', '3em')
+            .attr('y', '4em')
             .attr('x', this.container.node().getBoundingClientRect().width - circleGraphRadius * 2);
 
           var backgroundArcGenerator = d3.svg.arc()
@@ -251,6 +256,12 @@
           .attr('x', 0)
           .attr('y', '1.5em')
           .text(this.model.title);
+
+        unit = chart.append('text')
+          .attr('class', 'ampersand-graph-unit')
+          .attr('x', 0)
+          .attr('y', '3em')
+          .text(this.model.unit);
       } else {
         this.renderHorizontalData();
       }
@@ -593,7 +604,7 @@
         .attr('class', 'ampersand-graph-label')
         .style('display', 'none')
         .style('opacity', 0)
-        .attr('y', height - 46)
+        .attr('y', height - 30)
         .attr('dy', '1.25em');
 
       _.defer(function(data, containers, sectionWidth, values, sectionMargin, label) {
@@ -810,7 +821,7 @@
         if (this.model.drawBarBackground) {
           container.append('rect')
             .attr('class', 'ampersand-graph-bar-background ampersand-graph-bar-background-' + index)
-            .attr('y', '1.5em')
+            .attr('y', '2.5em')
             .attr('height', height - 76);
 
           containers.select('rect.ampersand-graph-bar-background-' + index)
@@ -821,13 +832,13 @@
         container.append('rect')
           .attr('class', 'ampersand-graph-bar ampersand-graph-bar-' + index)
           .attr('width', barWidth)
-          .attr('y', height - 50)
+          .attr('y', height  - yBottomOffset)
           .attr('height', 0);
 
         if (this.model.drawValues) {
           container.append('text')
             .attr('class', 'ampersand-graph-value ampersand-graph-value-' + index)
-            .attr('y', height - 50)
+            .attr('y', height  - yBottomOffset)
             .attr('dy', '-0.75em')
             .attr('dx', '-0.05em');
         }
@@ -836,13 +847,13 @@
           .transition()
           .attr('x', (barWidth + barMargin) * index)
           .attr('width', barWidth)
-          .attr('y', function(d) { return y(Math.max(d[value], 0)) + 50; })
+          .attr('y', function(d) { return y(Math.max(d[value], 0)) + yTopOffset; })
           .attr('height', function(d) { return Math.abs(y(0) - y(d[value])); });
 
         containers.select('text.ampersand-graph-value-' + index)
           .transition()
           .attr('x', barWidth * (index * 2 + 1) / 2 + barMargin * index)
-          .attr('y', function(d) { return y(d[value]) + 50; })
+          .attr('y', function(d) { return y(d[value]) + yTopOffset; })
           .text(function(d) { return d[value]; });
       }.bind(this));
 
@@ -892,7 +903,7 @@
 
       var areaFunction = d3.svg.area()
         .x(function(d) { return d.x; })
-        .y0(height - 50)
+        .y0(height  - yBottomOffset)
         .y1(function(d) { return d.y; })
         .interpolate('linear');
 
@@ -949,10 +960,10 @@
           .attr('shape-rendering', 'crispEdges')
           .attr('d', function(d) {
             var path = [
-              { x: lineWidth / 2, y: height - 50 },
+              { x: lineWidth / 2, y: height  - yBottomOffset },
               { 
                 x: d.index < data.length - 1 ? lineWidth * 3 / 2 + lineGroupMargin : lineWidth / 2,
-                y: height - 50
+                y: height  - yBottomOffset
               }
             ];
             return areaFunction(path);
@@ -961,20 +972,20 @@
         container.append('line')
           .attr('class', 'ampersand-graph-line ampersand-graph-line-' + index)
           .attr('x1', lineWidth / 2)
-          .attr('y1', height - 50)
+          .attr('y1', height  - yBottomOffset)
           .attr('x2', function(d) { return d.index < data.length - 1 ? lineWidth * 3 / 2 + lineGroupMargin : lineWidth / 2; })
-          .attr('y2', height - 50);
+          .attr('y2', height  - yBottomOffset);
 
         container.append('circle')
           .attr('class', 'ampersand-graph-line ampersand-graph-line-dot-' + index)
           .attr('r', '0.15em')
-          .attr('cy', height - 50);
+          .attr('cy', height  - yBottomOffset);
 
         if (this.model.drawValues) {
           container.append('text')
             .attr('class', 'ampersand-graph-value ampersand-graph-value-' + index)
             .attr('x', lineWidth / 2)
-            .attr('y', height - 50)
+            .attr('y', height  - yBottomOffset)
             .attr('dy', '-0.75em')
             .attr('dx', '-0.05em');
         }
@@ -982,18 +993,18 @@
         containers.select('circle.ampersand-graph-line-dot-' + index)
           .attr('cx', lineWidth / 2)
           .transition()
-          .attr('cy', function(d) { return y(d[value]) + 50; });
+          .attr('cy', function(d) { return y(d[value]) + yTopOffset; });
 
         containers.select('line.ampersand-graph-line-' + index)
           .transition()
           .attr('x1', lineWidth / 2)
-          .attr('y1', function(d) { return y(d[value]) + 50; })
+          .attr('y1', function(d) { return y(d[value]) + yTopOffset; })
           .attr('x2', function(d) { return d.index < data.length - 1 ? lineWidth * 3 / 2 + lineGroupMargin : lineWidth / 2; })
           .attr('y2', function(d) {
             if (d.index < data.length - 1) {
-              return y(data[d.index + 1][value]) + 50;
+              return y(data[d.index + 1][value]) + yTopOffset;
             } else {
-              return y(d[value]) + 50;
+              return y(d[value]) + yTopOffset;
             }
           });
 
@@ -1001,10 +1012,10 @@
           .transition()
           .attr('d', function(d) {
             var path = [
-              { x: lineWidth / 2, y: y(d[value]) + 50 },
+              { x: lineWidth / 2, y: y(d[value]) + yTopOffset },
               { 
                 x: d.index < data.length - 1 ? lineWidth * 3 / 2 + lineGroupMargin: lineWidth / 2,
-                y: d.index < data.length - 1 ? y(data[d.index + 1][value]) + 50 : y(d[value]) + 50
+                y: d.index < data.length - 1 ? y(data[d.index + 1][value]) + yTopOffset : y(d[value]) + yTopOffset
               }
             ];
             return areaFunction(path);
@@ -1012,7 +1023,7 @@
 
         containers.select('text.ampersand-graph-value-' + index)
           .transition()
-          .attr('y', function(d) { return y(d[value]) + 50; })
+          .attr('y', function(d) { return y(d[value]) + yTopOffset; })
           .text(function(d) { return d[value]; });
       }.bind(this));
 
@@ -1058,7 +1069,7 @@
 
       var areaFunction = d3.svg.area()
         .x(function(d) { return d.x; })
-        .y0(height - 50)
+        .y0(height  - yBottomOffset)
         .y1(function(d) { return d.y; })
         .interpolate('basis');
 
@@ -1094,10 +1105,10 @@
           .attr('shape-rendering', 'crispEdges')
           .attr('d', function(d) {
             var path = [
-              { x: areaWidth / 2, y: height - 50 },
+              { x: areaWidth / 2, y: height  - yBottomOffset },
               { 
                 x: d.index < data.length - 1 ? areaWidth * 3 / 2 + areaGroupMargin : areaWidth / 2,
-                y: height - 50
+                y: height  - yBottomOffset
               }
             ];
             return areaFunction(path);
@@ -1107,7 +1118,7 @@
           container.append('text')
             .attr('class', 'ampersand-graph-value ampersand-graph-value-' + index)
             .attr('x', areaWidth / 2)
-            .attr('y', height - 50)
+            .attr('y', height  - yBottomOffset)
             .attr('dy', '-0.75em')
             .attr('dx', '-0.05em');
         }
@@ -1116,18 +1127,18 @@
           .transition()
           .attr('d', function(d) {
             var path = [
-              { x: areaWidth / 2, y: y(d[value]) + 50 },
+              { x: areaWidth / 2, y: y(d[value]) + yTopOffset },
               {
                 x: d.index < data.length - 1 ? areaWidth * 3 / 2 : areaWidth / 2,
-                y: y(d[value]) + 50
+                y: y(d[value]) + yTopOffset
               },
               { 
                 x: d.index < data.length - 1 ? areaWidth / 2 + areaGroupMargin: areaWidth / 2,
-                y: d.index < data.length - 1 ? y(data[d.index + 1][value]) + 50 : y(d[value]) + 50
+                y: d.index < data.length - 1 ? y(data[d.index + 1][value]) + yTopOffset : y(d[value]) + yTopOffset
               },
               { 
                 x: d.index < data.length - 1 ? areaWidth * 3 / 2 + areaGroupMargin: areaWidth / 2,
-                y: d.index < data.length - 1 ? y(data[d.index + 1][value]) + 50 : y(d[value]) + 50
+                y: d.index < data.length - 1 ? y(data[d.index + 1][value]) + yTopOffset : y(d[value]) + yTopOffset
               }
             ];
             return areaFunction(path);
@@ -1135,7 +1146,7 @@
 
         containers.select('text.ampersand-graph-value-' + index)
           .transition()
-          .attr('y', function(d) { return y(d[value]) + 50; })
+          .attr('y', function(d) { return y(d[value]) + yTopOffset; })
           .text(function(d) { return d[value]; });
       }.bind(this));
 

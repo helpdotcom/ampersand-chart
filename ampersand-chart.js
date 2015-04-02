@@ -15,6 +15,7 @@
       // Data Settings
       data: 'object',
       title: 'string',
+      unit: [ 'string', false, '' ],
       values: 'array',
       label: 'string',
       range: 'array',
@@ -163,6 +164,7 @@
       var yAxis = null;
       var ground = null;
       var title = null;
+      var unit = null;
 
       if (this.model.direction === 'vertical') {
         var y = d3.scale.linear()
@@ -251,6 +253,12 @@
           .attr('x', 0)
           .attr('y', '1.5em')
           .text(this.model.title);
+
+        unit = chart.append('text')
+          .attr('class', 'ampersand-graph-unit')
+          .attr('x', 0)
+          .attr('y', '3em')
+          .text(this.model.unit);
       } else {
         this.renderHorizontalData();
       }

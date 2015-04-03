@@ -270,9 +270,8 @@
         if (this.model.drawLegend) {
           var legend = chart.append('g')
             .attr('class', 'ampersand-graph-legend')
-            .attr('transform', 'translate(' +
-              (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin) / 2 - 100) +
-              ',' + (height + 20) + ')');
+            .attr('transform', 'translate(0,' + (height + 20) + ')')
+            .style('opacity', 0);
 
           var legendBackground = legend.append('rect')
             .attr('class', 'ampersand-graph-legend-background')
@@ -295,7 +294,7 @@
               .text(value);
 
             (function(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground) {
-              setTimeout(function() {
+              _.defer(function() {
                 var offset = 0;
                 
                 if (index === 1) {
@@ -317,29 +316,17 @@
 
                   legendBackground
                     .attr('width', width);
-
-                  switch (this.model.chartType) {
-                    case 'bar':
-                      legend.attr('transform', 'translate(' +
-                        (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin - width) / 2 - circleGraphRadius) +
-                        ',' + (height + 20) + ')');
-                    break;
-                    case 'line':
-                    case 'area':
-                      legend.attr('transform', 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin - width) / 2 - circleGraphRadius) + ',' + (height + 20) + ')');
-                    break;
-                  }
                 }
 
                 this.renderData();
-              }.bind(this), 1);
+              }.bind(this));
             }.bind(this))(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground);
           }.bind(this));
         }
 
         if (this.model.drawYAxisLabels) {
           (function(yAxis, ground) {
-            setTimeout(function() {
+            _.defer(function() {
               if (yAxis) {
                 var yAxisOffset = 0;
                 yAxis.selectAll('text').each(function() {
@@ -350,20 +337,20 @@
               }
              
               this.renderData();
-            }.bind(this), 1);
+            }.bind(this));
           }.bind(this))(yAxis, ground);
         }
 
         if (this.model.drawCircleGraph) {
           (function(yAxis, ground) {
-            setTimeout(function() {
+            _.defer(function() {
               var rectWidth = this.circleSvg.select('text.ampersand-graph-circle-label').node().getBBox().width + 32;
               this.circleSvg.select('rect.ampersand-graph-circle-label-background')
                 .attr('width', rectWidth)
                 .attr('transform', 'translate(-' + rectWidth / 2 + ',0)');
 
               this.renderData();
-            }.bind(this), 1);
+            }.bind(this));
           }.bind(this))(yAxis, ground);
         }
 
@@ -583,7 +570,7 @@
       yAxis.call(yAxisGenerator);
 
       (function(yAxis) {
-        setTimeout(function() {
+        _.defer(function() {
           if (yAxis) {
             var yAxisOffset = 0;
             yAxis.selectAll('text').each(function() {
@@ -592,7 +579,7 @@
             yAxis.attr('x', yAxisOffset + 12);
             this.svg.select('line.ampersand-graph-ground').attr('x1', yAxisOffset + 12);
           }
-        }.bind(this), 1);
+        }.bind(this));
       }.bind(this))(yAxis);
     },
     renderXAxis: function(data, container, containers, height, sectionWidth, sectionMargin, values, label) {
@@ -861,13 +848,16 @@
         .transition()
         .attr('x2', (2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin);
 
-      chart.select('g.ampersand-graph-legend')
-        .transition()
-        .attr('transform', function() {
-          return 'translate(' +
-            (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin - this.getBBox().width) / 2) +
-            ',' + (height + 20) + ')';
-        });
+      if (data.length > 0) {
+        chart.select('g.ampersand-graph-legend')
+          .transition()
+          .style('opacity', 1)
+          .attr('transform', function() {
+            return 'translate(' +
+              (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin - this.getBBox().width) / 2) +
+              ',' + (height + 20) + ')';
+          });
+      }
     },
     renderLineGraph: function() {
       var chart = this.svg;
@@ -1031,9 +1021,12 @@
         .transition()
         .attr('x2', (2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin);
 
-      chart.select('g.ampersand-graph-legend')
-        .transition()
-        .attr('transform', function() { return 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin) / 2 - this.getBBox().width / 2) + ',' + (height + 20) + ')'; });
+      if (data.length > 0) {
+        chart.select('g.ampersand-graph-legend')
+          .transition()
+          .style('opacity', 1)
+          .attr('transform', function() { return 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin) / 2 - this.getBBox().width / 2) + ',' + (height + 20) + ')'; });
+      }
     },
     renderAreaGraph: function() {
       var chart = this.svg;
@@ -1154,9 +1147,12 @@
         .transition()
         .attr('x2', (2 + data.length) * areaWidth + (data.length - 1) * areaGroupMargin);
 
-      chart.select('g.ampersand-graph-legend')
-        .transition()
-        .attr('transform', function() { return 'translate(' + (((2 + data.length) * areaWidth + (data.length - 1) * areaGroupMargin) / 2 - this.getBBox().width / 2) + ',' + (height + 20) + ')'; });
+      if (data.length > 0) {
+        chart.select('g.ampersand-graph-legend')
+          .transition()
+          .style('opacity', 1)
+          .attr('transform', function() { return 'translate(' + (((2 + data.length) * areaWidth + (data.length - 1) * areaGroupMargin) / 2 - this.getBBox().width / 2) + ',' + (height + 20) + ')'; });
+      }
     }
   });
 

@@ -22,6 +22,7 @@
       values: 'array',
       label: 'string',
       range: 'array',
+      loading: [ 'boolean', false, false ],
 
       // Search Settings
       searchData: 'object',
@@ -68,6 +69,7 @@
       this._data = new AmpersandSubCollection(this.data);
 
       this._data.on('all', function() {
+        this.loading = false;
         if (this.direction === 'vertical') {
           this._view.renderData();
         } else {
@@ -110,6 +112,29 @@
 
             chart.select('button.ampersand-graph-filter-button')
               .attr('class', 'ampersand-graph-filter-button');
+          }
+        }
+      },
+      'model.loading': {
+        type: function(el, loading) {
+          if (_.isUndefined(this.svg)) {
+            return;
+          }
+
+          if (loading) {
+            this.svg.selectAll('g.ampersand-graph-bar-container').remove();
+            this.svg.selectAll('g.ampersand-graph-line-container').remove();
+            this.svg.selectAll('g.ampersand-graph-line-area-container').remove();
+            this.svg.selectAll('g.ampersand-graph-area-container').remove();
+            this.svg.selectAll('svg.ampersand-graph-y-axis, line.ampersand-graph-ground, text.ampersand-graph-no-data')
+              .style('display', 'none');
+            this.svg.select('text.ampersand-graph-loading')
+              .style('display', undefined);
+          } else {
+            this.svg.selectAll('svg.ampersand-graph-y-axis, line.ampersand-graph-ground, text.ampersand-graph-no-data')
+              .style('display', undefined);
+            this.svg.select('text.ampersand-graph-loading')
+              .style('display', 'none');
           }
         }
       }
@@ -361,6 +386,14 @@
           .attr('dy', '0.15em')
           .style('display', 'none')
           .text('No matching data found. Please try a different filter.');
+
+        chart.append('text')
+          .attr('class', 'ampersand-graph-loading')
+          .attr('x', '50%')
+          .attr('y', '50%')
+          .attr('dy', '0.15em')
+          .style('display', 'none')
+          .text('Loading data...');
       }
 
       this.renderFilter();
@@ -496,6 +529,7 @@
         }]
       });
       filterTrackerState.onApply = function(props, options) { 
+        this.model.loading = true;
         this.model.filterOnApply(props);
         if (options.doNotToggle !== true) {
           this.toggleFilterWindow();
@@ -512,11 +546,15 @@
         .style('display', 'none');
     },
     showNoData: function() {
+      if (this.model.loading) {
+        return;
+      }
+
       this.svg.selectAll('g.ampersand-graph-bar-container').remove();
       this.svg.selectAll('g.ampersand-graph-line-container').remove();
       this.svg.selectAll('g.ampersand-graph-line-area-container').remove();
       this.svg.selectAll('g.ampersand-graph-area-container').remove();
-      this.svg.selectAll('svg.ampersand-graph-y-axis, line.ampersand-graph-ground')
+      this.svg.selectAll('svg.ampersand-graph-y-axis, line.ampersand-graph-ground, text.ampersand-graph-loading')
         .style('display', 'none');
       this.svg.select('text.ampersand-graph-no-data')
         .style('display', undefined);

@@ -358,9 +358,9 @@
           .attr('class', 'ampersand-graph-no-data')
           .attr('x', '50%')
           .attr('y', '50%')
-          .attr('dy', '-4em')
+          .attr('dy', '0.15em')
           .style('display', 'none')
-          .text('No matching data found.');
+          .text('No matching data found. Please try a different filter.');
       }
 
       this.renderFilter();
@@ -506,7 +506,8 @@
       filterSelections[0][0].appendChild(filterTrackerView.el);
     },
     hideNoData: function() {
-
+      this.svg.selectAll('svg.ampersand-graph-y-axis, line.ampersand-graph-ground')
+        .style('display', undefined);
       this.svg.select('text.ampersand-graph-no-data')
         .style('display', 'none');
     },
@@ -515,6 +516,8 @@
       this.svg.selectAll('g.ampersand-graph-line-container').remove();
       this.svg.selectAll('g.ampersand-graph-line-area-container').remove();
       this.svg.selectAll('g.ampersand-graph-area-container').remove();
+      this.svg.selectAll('svg.ampersand-graph-y-axis, line.ampersand-graph-ground')
+        .style('display', 'none');
       this.svg.select('text.ampersand-graph-no-data')
         .style('display', undefined);
     },

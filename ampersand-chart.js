@@ -59,6 +59,7 @@
       areaGroupMarginCoefficient: [ 'number', false, 2 ],
       circleGraphFunction: 'function',
       circleGraphLabel: [ 'string', false, '' ],
+      colorCount: [ 'number', false, Infinity ],
         
       // Private Variables
       _view: 'object',
@@ -308,7 +309,7 @@
           var legendKey = [];
           _.each(values, function(value, index) {
             var legendCircle = legend.append('circle')
-              .attr('class', 'ampersand-graph-bar-' + index)
+              .attr('class', 'ampersand-graph-bar-color-' + (index % this.model.colorCount))
               .attr('r', '0.3em')
               .attr('cy', '1em');
 
@@ -858,7 +859,7 @@
         }
 
         container.append('rect')
-          .attr('class', 'ampersand-graph-bar ampersand-graph-bar-' + index)
+          .attr('class', 'ampersand-graph-bar ampersand-graph-bar-' + index + ' ampersand-graph-bar-color-' + (index % this.model.colorCount))
           .attr('width', barWidth)
           .attr('y', height  - yBottomOffset)
           .attr('height', 0);
@@ -876,7 +877,7 @@
           .attr('x', (barWidth + barMargin) * index)
           .attr('width', barWidth)
           .attr('y', function(d) { return y(Math.max(d[value], 0)) + yTopOffset; })
-          .attr('height', function(d) { return Math.abs(y(0) - y(d[value])); });
+          .attr('height', function(d) { return Math.max(2, Math.abs(y(0) - y(d[value]))); });
 
         containers.select('text.ampersand-graph-value-' + index)
           .transition()
@@ -1001,14 +1002,14 @@
           });
 
         container.append('line')
-          .attr('class', 'ampersand-graph-line ampersand-graph-line-' + index)
+          .attr('class', 'ampersand-graph-line ampersand-graph-line-' + index + ' ampersand-graph-line-color-' + (index % this.model.colorCount))
           .attr('x1', lineWidth / 2)
           .attr('y1', height  - yBottomOffset)
           .attr('x2', function(d) { return d.index < data.length - 1 ? lineWidth * 3 / 2 + lineGroupMargin : lineWidth / 2; })
           .attr('y2', height  - yBottomOffset);
 
         container.append('circle')
-          .attr('class', 'ampersand-graph-line ampersand-graph-line-dot-' + index)
+          .attr('class', 'ampersand-graph-line ampersand-graph-line-dot-' + index + ' ampersand-graph-line-dot-color-' + (index % this.model.colorCount))
           .attr('r', '0.15em')
           .attr('cy', height  - yBottomOffset);
 
@@ -1135,7 +1136,7 @@
 
       _.each(values, function(value, index) {
         container.append('path')
-          .attr('class', 'ampersand-graph-area ampersand-graph-area-' + index)
+          .attr('class', 'ampersand-graph-area ampersand-graph-area-' + index + ' ampersand-graph-area-color-' + (index % this.model.colorCount))
           .attr('shape-rendering', 'crispEdges')
           .attr('d', function(d) {
             var path = [

@@ -877,7 +877,7 @@
           .attr('x', (barWidth + barMargin) * index)
           .attr('width', barWidth)
           .attr('y', function(d) { return y(Math.max(d[value], 0)) + yTopOffset; })
-          .attr('height', function(d) { return Math.abs(y(0) - y(d[value])); });
+          .attr('height', function(d) { return Math.max(2, Math.abs(y(0) - y(d[value]))); });
 
         containers.select('text.ampersand-graph-value-' + index)
           .transition()

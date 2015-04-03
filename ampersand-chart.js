@@ -22,6 +22,7 @@
       values: 'array',
       label: 'string',
       range: 'array',
+      loading: [ 'boolean', false, false ],
 
       // Search Settings
       searchData: 'object',
@@ -68,6 +69,7 @@
       this._data = new AmpersandSubCollection(this.data);
 
       this._data.on('all', function() {
+        this.loading = false;
         if (this.direction === 'vertical') {
           this._view.renderData();
         } else {
@@ -110,6 +112,29 @@
 
             chart.select('button.ampersand-graph-filter-button')
               .attr('class', 'ampersand-graph-filter-button');
+          }
+        }
+      },
+      'model.loading': {
+        type: function(el, loading) {
+          if (_.isUndefined(this.svg)) {
+            return;
+          }
+
+          if (loading) {
+            this.svg.selectAll('g.ampersand-graph-bar-container').remove();
+            this.svg.selectAll('g.ampersand-graph-line-container').remove();
+            this.svg.selectAll('g.ampersand-graph-line-area-container').remove();
+            this.svg.selectAll('g.ampersand-graph-area-container').remove();
+            this.svg.selectAll('svg.ampersand-graph-y-axis, line.ampersand-graph-ground, text.ampersand-graph-no-data')
+              .style('display', 'none');
+            this.svg.select('text.ampersand-graph-loading')
+              .style('display', undefined);
+          } else {
+            this.svg.selectAll('svg.ampersand-graph-y-axis, line.ampersand-graph-ground, text.ampersand-graph-no-data')
+              .style('display', undefined);
+            this.svg.select('text.ampersand-graph-loading')
+              .style('display', 'none');
           }
         }
       }
@@ -270,9 +295,8 @@
         if (this.model.drawLegend) {
           var legend = chart.append('g')
             .attr('class', 'ampersand-graph-legend')
-            .attr('transform', 'translate(' +
-              (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin) / 2 - 100) +
-              ',' + (height + 20) + ')');
+            .attr('transform', 'translate(0,' + (height + 20) + ')')
+            .style('opacity', 0);
 
           var legendBackground = legend.append('rect')
             .attr('class', 'ampersand-graph-legend-background')
@@ -295,7 +319,7 @@
               .text(value);
 
             (function(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground) {
-              setTimeout(function() {
+              _.defer(function() {
                 var offset = 0;
                 
                 if (index === 1) {
@@ -317,29 +341,17 @@
 
                   legendBackground
                     .attr('width', width);
-
-                  switch (this.model.chartType) {
-                    case 'bar':
-                      legend.attr('transform', 'translate(' +
-                        (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin - width) / 2 - circleGraphRadius) +
-                        ',' + (height + 20) + ')');
-                    break;
-                    case 'line':
-                    case 'area':
-                      legend.attr('transform', 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin - width) / 2 - circleGraphRadius) + ',' + (height + 20) + ')');
-                    break;
-                  }
                 }
 
                 this.renderData();
-              }.bind(this), 1);
+              }.bind(this));
             }.bind(this))(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground);
           }.bind(this));
         }
 
         if (this.model.drawYAxisLabels) {
           (function(yAxis, ground) {
-            setTimeout(function() {
+            _.defer(function() {
               if (yAxis) {
                 var yAxisOffset = 0;
                 yAxis.selectAll('text').each(function() {
@@ -350,20 +362,20 @@
               }
              
               this.renderData();
-            }.bind(this), 1);
+            }.bind(this));
           }.bind(this))(yAxis, ground);
         }
 
         if (this.model.drawCircleGraph) {
           (function(yAxis, ground) {
-            setTimeout(function() {
+            _.defer(function() {
               var rectWidth = this.circleSvg.select('text.ampersand-graph-circle-label').node().getBBox().width + 32;
               this.circleSvg.select('rect.ampersand-graph-circle-label-background')
                 .attr('width', rectWidth)
                 .attr('transform', 'translate(-' + rectWidth / 2 + ',0)');
 
               this.renderData();
-            }.bind(this), 1);
+            }.bind(this));
           }.bind(this))(yAxis, ground);
         }
 
@@ -371,9 +383,17 @@
           .attr('class', 'ampersand-graph-no-data')
           .attr('x', '50%')
           .attr('y', '50%')
-          .attr('dy', '-4em')
+          .attr('dy', '0.15em')
           .style('display', 'none')
-          .text('No matching data found.');
+          .text('No matching data found. Please try a different filter.');
+
+        chart.append('text')
+          .attr('class', 'ampersand-graph-loading')
+          .attr('x', '50%')
+          .attr('y', '50%')
+          .attr('dy', '0.15em')
+          .style('display', 'none')
+          .text('Loading data...');
       }
 
       this.renderFilter();
@@ -509,6 +529,7 @@
         }]
       });
       filterTrackerState.onApply = function(props, options) { 
+        this.model.loading = true;
         this.model.filterOnApply(props);
         if (options.doNotToggle !== true) {
           this.toggleFilterWindow();
@@ -519,15 +540,22 @@
       filterSelections[0][0].appendChild(filterTrackerView.el);
     },
     hideNoData: function() {
-
+      this.svg.selectAll('svg.ampersand-graph-y-axis, line.ampersand-graph-ground')
+        .style('display', undefined);
       this.svg.select('text.ampersand-graph-no-data')
         .style('display', 'none');
     },
     showNoData: function() {
+      if (this.model.loading) {
+        return;
+      }
+
       this.svg.selectAll('g.ampersand-graph-bar-container').remove();
       this.svg.selectAll('g.ampersand-graph-line-container').remove();
       this.svg.selectAll('g.ampersand-graph-line-area-container').remove();
       this.svg.selectAll('g.ampersand-graph-area-container').remove();
+      this.svg.selectAll('svg.ampersand-graph-y-axis, line.ampersand-graph-ground, text.ampersand-graph-loading')
+        .style('display', 'none');
       this.svg.select('text.ampersand-graph-no-data')
         .style('display', undefined);
     },
@@ -583,7 +611,7 @@
       yAxis.call(yAxisGenerator);
 
       (function(yAxis) {
-        setTimeout(function() {
+        _.defer(function() {
           if (yAxis) {
             var yAxisOffset = 0;
             yAxis.selectAll('text').each(function() {
@@ -592,7 +620,7 @@
             yAxis.attr('x', yAxisOffset + 12);
             this.svg.select('line.ampersand-graph-ground').attr('x1', yAxisOffset + 12);
           }
-        }.bind(this), 1);
+        }.bind(this));
       }.bind(this))(yAxis);
     },
     renderXAxis: function(data, container, containers, height, sectionWidth, sectionMargin, values, label) {
@@ -861,13 +889,16 @@
         .transition()
         .attr('x2', (2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin);
 
-      chart.select('g.ampersand-graph-legend')
-        .transition()
-        .attr('transform', function() {
-          return 'translate(' +
-            (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin - this.getBBox().width) / 2) +
-            ',' + (height + 20) + ')';
-        });
+      if (data.length > 0) {
+        chart.select('g.ampersand-graph-legend')
+          .transition()
+          .style('opacity', 1)
+          .attr('transform', function() {
+            return 'translate(' +
+              (((2 + data.length * values.length) * barWidth + data.length * (values.length - 1) * barMargin + (data.length - 1) * barGroupMargin - this.getBBox().width) / 2) +
+              ',' + (height + 20) + ')';
+          });
+      }
     },
     renderLineGraph: function() {
       var chart = this.svg;
@@ -1031,9 +1062,12 @@
         .transition()
         .attr('x2', (2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin);
 
-      chart.select('g.ampersand-graph-legend')
-        .transition()
-        .attr('transform', function() { return 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin) / 2 - this.getBBox().width / 2) + ',' + (height + 20) + ')'; });
+      if (data.length > 0) {
+        chart.select('g.ampersand-graph-legend')
+          .transition()
+          .style('opacity', 1)
+          .attr('transform', function() { return 'translate(' + (((2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin) / 2 - this.getBBox().width / 2) + ',' + (height + 20) + ')'; });
+      }
     },
     renderAreaGraph: function() {
       var chart = this.svg;
@@ -1154,9 +1188,12 @@
         .transition()
         .attr('x2', (2 + data.length) * areaWidth + (data.length - 1) * areaGroupMargin);
 
-      chart.select('g.ampersand-graph-legend')
-        .transition()
-        .attr('transform', function() { return 'translate(' + (((2 + data.length) * areaWidth + (data.length - 1) * areaGroupMargin) / 2 - this.getBBox().width / 2) + ',' + (height + 20) + ')'; });
+      if (data.length > 0) {
+        chart.select('g.ampersand-graph-legend')
+          .transition()
+          .style('opacity', 1)
+          .attr('transform', function() { return 'translate(' + (((2 + data.length) * areaWidth + (data.length - 1) * areaGroupMargin) / 2 - this.getBBox().width / 2) + ',' + (height + 20) + ')'; });
+      }
     }
   });
 

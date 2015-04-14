@@ -60,11 +60,20 @@
       circleGraphFunction: 'function',
       circleGraphLabel: [ 'string', false, '' ],
       colorCount: [ 'number', false, Infinity ],
+      valueRoundingPlace: [ 'number', false, 2 ],
         
       // Private Variables
       _view: 'object',
       _data: 'object',
       _filterOpen: [ 'boolean', false, false ]
+    },
+    derived: {
+      calculatedValueRoundingPlace: {
+        deps: [ 'valueRoundingPlace' ],
+        fn: function() {
+          return Math.pow(10, this.valueRoundingPlace);
+        }
+      }
     },
     initialize: function() {
       this._data = new AmpersandSubCollection(this.data);
@@ -883,7 +892,7 @@
           .transition()
           .attr('x', barWidth * (index * 2 + 1) / 2 + barMargin * index)
           .attr('y', function(d) { return y(d[value]) + yTopOffset; })
-          .text(function(d) { return d[value]; });
+          .text(function(d) { return Math.round(d[value]); });
       }.bind(this));
 
       chart.select('line.ampersand-graph-ground')
@@ -1057,7 +1066,7 @@
           .transition()
           .attr('x', lineWidth / 2)
           .attr('y', function(d) { return y(d[value]) + yTopOffset; })
-          .text(function(d) { return d[value]; });
+          .text(function(d) { return Math.round(d[value] * this.model.calculatedValueRoundingPlace) / this.model.calculatedValueRoundingPlace; }.bind(this));
       }.bind(this));
 
       chart.select('line.ampersand-graph-ground')
@@ -1184,7 +1193,7 @@
           .transition()
           .attr('x', areaWidth / 2)
           .attr('y', function(d) { return y(d[value]) + yTopOffset; })
-          .text(function(d) { return d[value]; });
+          .text(function(d) { return Math.round(d[value]); });
       }.bind(this));
 
       chart.select('line.ampersand-graph-ground')

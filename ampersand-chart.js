@@ -1055,6 +1055,7 @@
 
         containers.select('text.ampersand-graph-value-' + index)
           .transition()
+          .attr('x', lineWidth / 2)
           .attr('y', function(d) { return y(d[value]) + yTopOffset; })
           .text(function(d) { return d[value]; });
       }.bind(this));
@@ -1181,6 +1182,7 @@
 
         containers.select('text.ampersand-graph-value-' + index)
           .transition()
+          .attr('x', areaWidth / 2)
           .attr('y', function(d) { return y(d[value]) + yTopOffset; })
           .text(function(d) { return d[value]; });
       }.bind(this));

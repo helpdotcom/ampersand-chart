@@ -1031,6 +1031,12 @@
             .attr('dx', '-0.05em');
         }
 
+        container.append('rect')
+          .attr('class', 'ampersand-graph-mask ampersand-graph-line-mask')
+          .style('fill', 'transparent')
+          .attr('y', 0)
+          .attr('height', '100%');
+
         containers.select('circle.ampersand-graph-line-dot-' + index)
           .attr('cx', lineWidth / 2)
           .transition()
@@ -1067,6 +1073,10 @@
           .attr('x', lineWidth / 2)
           .attr('y', function(d) { return y(d[value]) + yTopOffset; })
           .text(function(d) { return Math.round(d[value] * this.model.calculatedValueRoundingPlace) / this.model.calculatedValueRoundingPlace; }.bind(this));
+
+        containers.select('rect.ampersand-graph-mask')
+          .attr('x', -lineWidth / 2)
+          .attr('width', lineWidth * 2);
       }.bind(this));
 
       chart.select('line.ampersand-graph-ground')
@@ -1168,6 +1178,12 @@
             .attr('dx', '-0.05em');
         }
 
+        container.append('rect')
+          .attr('class', 'ampersand-graph-mask ampersand-graph-area-mask')
+          .style('fill', 'transparent')
+          .attr('y', 0)
+          .attr('height', '100%');
+
         containers.select('path.ampersand-graph-area-' + index)
           .transition()
           .attr('d', function(d) {
@@ -1194,6 +1210,10 @@
           .attr('x', areaWidth / 2)
           .attr('y', function(d) { return y(d[value]) + yTopOffset; })
           .text(function(d) { return Math.round(d[value]); });
+
+        containers.select('rect.ampersand-graph-mask')
+          .attr('x', -areaWidth / 2)
+          .attr('width', areaWidth * 2);
       }.bind(this));
 
       chart.select('line.ampersand-graph-ground')

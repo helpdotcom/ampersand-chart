@@ -60,11 +60,20 @@
       circleGraphFunction: 'function',
       circleGraphLabel: [ 'string', false, '' ],
       colorCount: [ 'number', false, Infinity ],
+      valueRoundingPlace: [ 'number', false, 2 ],
         
       // Private Variables
       _view: 'object',
       _data: 'object',
       _filterOpen: [ 'boolean', false, false ]
+    },
+    derived: {
+      calculatedValueRoundingPlace: {
+        deps: [ 'valueRoundingPlace' ],
+        fn: function() {
+          return Math.pow(10, this.valueRoundingPlace);
+        }
+      }
     },
     initialize: function() {
       this._data = new AmpersandSubCollection(this.data);
@@ -883,7 +892,7 @@
           .transition()
           .attr('x', barWidth * (index * 2 + 1) / 2 + barMargin * index)
           .attr('y', function(d) { return y(d[value]) + yTopOffset; })
-          .text(function(d) { return d[value]; });
+          .text(function(d) { return Math.round(d[value]); });
       }.bind(this));
 
       chart.select('line.ampersand-graph-ground')
@@ -1022,6 +1031,12 @@
             .attr('dx', '-0.05em');
         }
 
+        container.append('rect')
+          .attr('class', 'ampersand-graph-mask ampersand-graph-line-mask')
+          .style('fill', 'transparent')
+          .attr('y', 0)
+          .attr('height', '100%');
+
         containers.select('circle.ampersand-graph-line-dot-' + index)
           .attr('cx', lineWidth / 2)
           .transition()
@@ -1055,8 +1070,13 @@
 
         containers.select('text.ampersand-graph-value-' + index)
           .transition()
+          .attr('x', lineWidth / 2)
           .attr('y', function(d) { return y(d[value]) + yTopOffset; })
-          .text(function(d) { return d[value]; });
+          .text(function(d) { return Math.round(d[value] * this.model.calculatedValueRoundingPlace) / this.model.calculatedValueRoundingPlace; }.bind(this));
+
+        containers.select('rect.ampersand-graph-mask')
+          .attr('x', -lineWidth / 2)
+          .attr('width', lineWidth * 2);
       }.bind(this));
 
       chart.select('line.ampersand-graph-ground')
@@ -1158,6 +1178,12 @@
             .attr('dx', '-0.05em');
         }
 
+        container.append('rect')
+          .attr('class', 'ampersand-graph-mask ampersand-graph-area-mask')
+          .style('fill', 'transparent')
+          .attr('y', 0)
+          .attr('height', '100%');
+
         containers.select('path.ampersand-graph-area-' + index)
           .transition()
           .attr('d', function(d) {
@@ -1181,8 +1207,13 @@
 
         containers.select('text.ampersand-graph-value-' + index)
           .transition()
+          .attr('x', areaWidth / 2)
           .attr('y', function(d) { return y(d[value]) + yTopOffset; })
-          .text(function(d) { return d[value]; });
+          .text(function(d) { return Math.round(d[value]); });
+
+        containers.select('rect.ampersand-graph-mask')
+          .attr('x', -areaWidth / 2)
+          .attr('width', areaWidth * 2);
       }.bind(this));
 
       chart.select('line.ampersand-graph-ground')

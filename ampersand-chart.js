@@ -61,6 +61,7 @@
       circleGraphLabel: [ 'string', false, '' ],
       colorCount: [ 'number', false, Infinity ],
       valueRoundingPlace: [ 'number', false, 2 ],
+      yAxisMinimum: [ 'number', false, 3 ],
         
       // Private Variables
       _view: 'object',
@@ -73,6 +74,15 @@
         fn: function() {
           return Math.pow(10, this.valueRoundingPlace);
         }
+      },
+      domain: {
+        deps: [ 'yAxisMinimum', '_data', 'values' ],
+        fn: function() {
+          return _.result(this, 'range', [ 0, Math.max(this.yAxisMinimum, d3.max(this._data.models, function(d) {
+            return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, this.values)), function(n) { return !isNaN(n); }));
+          }.bind(this))) ]);
+        },
+        cache: false
       }
     },
     initialize: function() {
@@ -206,9 +216,7 @@
 
       if (this.model.direction === 'vertical') {
         var y = d3.scale.linear()
-          .domain(_.result(this.model, 'range', [ 0, d3.max(data, function(d) {
-            return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
-          }) ]))
+          .domain(this.model.domain)
           .range([ height - 100, 0 ]);
 
         if (this.model.drawYAxisLabels) {
@@ -822,9 +830,7 @@
       var barMargin = barWidth * b;
 
       var y = d3.scale.linear()
-        .domain(_.result(this.model, 'range', [ 0, d3.max(data, function(d) {
-          return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
-        }) ]))
+        .domain(this.model.domain)
         .range([ height - 100, 0 ]);
 
       this.renderYAxis(y, graphWidth, yAxisOffset, circleGraphRadius, circleGraphPadding);
@@ -935,9 +941,7 @@
       var lineGroupMargin = lineWidth * a;
 
       var y = d3.scale.linear()
-        .domain(_.result(this.model, 'range', [ 0, d3.max(data, function(d) {
-          return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
-        }) ]))
+        .domain(this.model.domain)
         .range([ height - 100, 0 ]);
 
       this.renderYAxis(y, graphWidth, yAxisOffset, 0, 0);
@@ -1115,9 +1119,7 @@
       var areaGroupMargin = areaWidth * a;
 
       var y = d3.scale.linear()
-        .domain(_.result(this.model, 'range', [ 0, d3.max(data, function(d) {
-          return Math.max.apply(null, _.remove(_.values(_.pick(d.attributes, values)), function(n) { return !isNaN(n); }));
-        }) ]))
+        .domain(this.model.domain)
         .range([ height - 100, 0 ]);
 
       this.renderYAxis(y, graphWidth, yAxisOffset, 0, 0);

@@ -654,7 +654,7 @@
         .attr('dy', '1.25em');
 
       _.defer(function(data, containers, sectionWidth, values, sectionMargin, label) {
-        var width = Math.ceil(_.reduce(data, function(max, item) { return Math.max(max, item[label].toString().length); }, 0) * 6.25);
+        var width = Math.ceil(_.reduce(data, function(max, item) { return Math.max(max, item[label].toString().length); }, 0) * 14);
         var sectionGroupWidth = (sectionWidth * values.length) + sectionMargin * (values.length - 1);
         containers.select('text.ampersand-graph-label')
           .style('display', function(d, i) {

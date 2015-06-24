@@ -484,6 +484,19 @@
       filterPersonnel.append('h6')
         .text('By agent/team:');
 
+      var filterAnon = filterWindow.append('section')
+        .attr('class', 'ampersand-graph-filter-widget ampersand-graph-exclude-anonymous');
+
+      var anonId = 'ampersand-graph-exclude-anonymous-' +
+        this.model.title.replace(/\s/g, '-');
+      var anonLabel = filterAnon.append('label')
+        .attr('for', anonId)
+        .attr('class', 'checkbox-label')
+        .text('Exclude Anonymous Chat');
+
+      anonLabel.html('<input type="checkbox" name="exclude-anonymous" id="' +
+        anonId + '"> Exclude Anonymous Chats');
+
       var searchSelectState = this.model.searchSelectState = new AmpersandSearchSelect.State({
         data: this.model.searchData,
         idAttribute: this.model.searchIdAttribute,
@@ -546,7 +559,9 @@
           }
         }]
       });
-      filterTrackerState.onApply = function(props, options) { 
+      filterTrackerState.onApply = function(props, options) {
+        var sel = this.el.querySelector('input[type=checkbox]');
+        props.excludeAnonymous = sel.checked;
         this.model.loading = true;
         this.model.filterOnApply(props);
         if (options.doNotToggle !== true) {

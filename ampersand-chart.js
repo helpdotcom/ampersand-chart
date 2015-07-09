@@ -54,6 +54,7 @@
       drawBarBackground: [ 'boolean', false, true ],
       drawCircleGraph: [ 'boolean', false, false ],
       countMinimumOpacity: [ 'number', false, 0.25 ],
+      countContainerClasses: [ 'array', false, function() { return []; } ],
       barMarginCoefficient: [ 'number', false, 0.2 ],
       barGroupMarginCoefficient: [ 'number', false, 1.2 ],
       lineGroupMarginCoefficient: [ 'number', false, 2 ],
@@ -725,6 +726,7 @@
       var data = this.model._data.models;
       var label = this.model.label;
       var minOpacity = this.model.countMinimumOpacity;
+      var containerClasses = this.model.countContainerClasses;
       var max = d3.max(data, function(d) { return d.count; });
 
       var containers = this.container.selectAll('div.ampersand-graph-count-container')
@@ -734,7 +736,7 @@
         .remove();
 
       var container = containers.enter().append('div')
-        .attr('class', 'ampersand-graph-count-container');
+        .attr('class', 'ampersand-graph-count-container ' + containerClasses.join(' '));
 
       container
         .style('opacity', 0)

@@ -308,6 +308,11 @@
           .attr('y', '3em')
           .text(this.model.unit);
       } else {
+        this.container.append('div')
+          .attr('class', 'ampersand-graph-no-data')
+          .style('display', 'none')
+          .text('No matching data found. Please try a different filter.');
+
         this.renderHorizontalData();
       }
 
@@ -628,6 +633,12 @@
       var data = this.model._data.models;
       if (data.length > 0) {
         this.renderHorizontalBarGraph();
+        this.container.select('div.ampersand-graph-no-data')
+          .style('display', 'none');
+      } else {
+        this.container.selectAll('svg.ampersand-graph-horizontal-container').remove();
+        this.container.select('div.ampersand-graph-no-data')
+          .style('display', 'block');
       }
     },
     renderYAxis: function(y, graphWidth, yAxisOffset, circleGraphRadius, circleGraphPadding) {

@@ -308,6 +308,11 @@
           .attr('y', '3em')
           .text(this.model.unit);
       } else {
+        this.container.append('div')
+          .attr('class', 'ampersand-graph-no-data')
+          .style('display', 'none')
+          .text('No matching data found. Please try a different filter.');
+
         this.renderHorizontalData();
       }
 
@@ -628,6 +633,12 @@
       var data = this.model._data.models;
       if (data.length > 0) {
         this.renderHorizontalBarGraph();
+        this.container.select('div.ampersand-graph-no-data')
+          .style('display', 'none');
+      } else {
+        this.container.selectAll('svg.ampersand-graph-horizontal-container').remove();
+        this.container.select('div.ampersand-graph-no-data')
+          .style('display', 'block');
       }
     },
     renderYAxis: function(y, graphWidth, yAxisOffset, circleGraphRadius, circleGraphPadding) {
@@ -811,7 +822,18 @@
         .attr('y', '3.1em');
 
       containers.select('text.ampersand-graph-value')
-        .attr('x', function(d) { return d.percent + '%'; })
+        .attr('x', function(d) {
+          if (d.percent < 10) {
+            return '3.5em';
+          }
+
+          return d.percent + '%';
+        })
+        .style('fill', function(d) {
+          if (d.percent < 10) {
+            return '#333';
+          }
+        })
         .text(function(d) { return d.count; });
 
       container.append('text')

@@ -822,7 +822,18 @@
         .attr('y', '3.1em');
 
       containers.select('text.ampersand-graph-value')
-        .attr('x', function(d) { return d.percent + '%'; })
+        .attr('x', function(d) {
+          if (d.percent < 10) {
+            return '3.5em';
+          }
+
+          return d.percent + '%';
+        })
+        .style('fill', function(d) {
+          if (d.percent < 10) {
+            return '#333';
+          }
+        })
         .text(function(d) { return d.count; });
 
       container.append('text')

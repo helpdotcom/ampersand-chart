@@ -1,6 +1,6 @@
 {
   "name": "ampersand-chart",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "Ampersand module for drawing a charts.",
   "main": "ampersand-chart.js",
   "scripts": {

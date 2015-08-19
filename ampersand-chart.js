@@ -64,6 +64,7 @@
       colorCount: [ 'number', false, Infinity ],
       valueRoundingPlace: [ 'number', false, 2 ],
       yAxisMinimum: [ 'number', false, 3 ],
+      noDataMessage: [ 'string', false, 'No matching data found. Please try a different filter.' ],
         
       // Private Variables
       _view: 'object',
@@ -200,6 +201,14 @@
         container.append('h6')
           .attr('class', 'ampersand-graph-title')
           .text(this.model.title);
+
+        container.append('div')
+          .attr('class', 'ampersand-graph-no-data')
+          .style('display', 'none')
+          .text(this.model.noDataMessage);
+
+        this.renderData();
+
         this.renderFilter();
         return true;
       }
@@ -311,7 +320,7 @@
         this.container.append('div')
           .attr('class', 'ampersand-graph-no-data')
           .style('display', 'none')
-          .text('No matching data found. Please try a different filter.');
+          .text(this.model.noDataMessage);
 
         this.renderHorizontalData();
       }
@@ -410,7 +419,7 @@
           .attr('y', '50%')
           .attr('dy', '0.15em')
           .style('display', 'none')
-          .text('No matching data found. Please try a different filter.');
+          .text(this.model.noDataMessage);
 
         chart.append('text')
           .attr('class', 'ampersand-graph-loading')
@@ -603,7 +612,15 @@
       var data = this.model._data.models;
 
       if (this.model.chartType === 'count') {
-        this.renderCountGraph();
+        if (data.length > 0) {
+          this.renderCountGraph();
+          this.container.select('div.ampersand-graph-no-data')
+            .style('display', 'none');
+        } else {
+          this.container.selectAll('div.ampersand-graph-count-container').remove();
+          this.container.select('div.ampersand-graph-no-data')
+            .style('display', 'block');
+        }
         return;
       }
 

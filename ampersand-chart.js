@@ -93,20 +93,12 @@
 
       this._data.on('all', function() {
         this.loading = false;
-        if (this.direction === 'vertical') {
-          this._view.renderData();
-        } else {
-          this._view.renderHorizontalData();
-        }
+        this._view.renderData();
       }.bind(this));
 
       this._data.each(function(model) {
         model.on('change', function() {
-          if (this.direction === 'vertical') {
-            this._view.renderData();
-          } else {
-            this._view.renderHorizontalData();
-          }
+          this._view.renderData();
         }.bind(this));
       }.bind(this));
     }
@@ -322,7 +314,7 @@
           .style('display', 'none')
           .text(this.model.noDataMessage);
 
-        this.renderHorizontalData();
+        this.renderData();
       }
 
       if (this.model.direction === 'vertical') {
@@ -609,42 +601,51 @@
         .style('display', undefined);
     },
     renderData: function() {
-      var data = this.model._data.models;
+      var self = this;
+      var model = self.model;
+      setTimeout(function() {
+        var data = model._data.models;
 
-      if (this.model.chartType === 'count') {
+        if (model.direction === 'horizontal') {
+          self.renderHorizontalData();
+          return;
+        }
+
+        if (model.chartType === 'count') {
+          if (data.length > 0) {
+            self.renderCountGraph();
+            self.container.select('div.ampersand-graph-no-data')
+              .style('display', 'none');
+          } else {
+            self.container.selectAll('div.ampersand-graph-count-container').remove();
+            self.container.select('div.ampersand-graph-no-data')
+              .style('display', 'block');
+          }
+          return;
+        }
+
         if (data.length > 0) {
-          this.renderCountGraph();
-          this.container.select('div.ampersand-graph-no-data')
-            .style('display', 'none');
+          switch (model.chartType) {
+            case 'bar':
+              self.renderBarGraph();
+            break;
+            case 'line':
+              self.renderLineGraph();
+            break;
+            case 'area':
+              self.renderAreaGraph();
+            break;
+          }
+
+          if (model.drawCircleGraph) {
+            self.renderCircleGraph();
+          }
+
+          self.hideNoData();
         } else {
-          this.container.selectAll('div.ampersand-graph-count-container').remove();
-          this.container.select('div.ampersand-graph-no-data')
-            .style('display', 'block');
+          self.showNoData();
         }
-        return;
-      }
-
-      if (data.length > 0) {
-        switch (this.model.chartType) {
-          case 'bar':
-            this.renderBarGraph();
-          break;
-          case 'line':
-            this.renderLineGraph();
-          break;
-          case 'area':
-            this.renderAreaGraph();
-          break;
-        }
-
-        if (this.model.drawCircleGraph) {
-          this.renderCircleGraph();
-        }
-
-        this.hideNoData();
-      } else {
-        this.showNoData();
-      }
+      }, 0);
     },
     renderHorizontalData: function() {
       var data = this.model._data.models;

@@ -51,6 +51,7 @@
       drawAllXAxisLabels: [ 'boolean', false, false ],
       drawYAxisLabels: [ 'boolean', false, true ],
       drawYAxisGridLines: [ 'boolean', false, true ],
+      preventDecimalTickValues: [ 'boolean', false, true ],
       drawBarBackground: [ 'boolean', false, true ],
       drawCircleGraph: [ 'boolean', false, false ],
       countMinimumOpacity: [ 'number', false, 0.25 ],
@@ -65,7 +66,7 @@
       valueRoundingPlace: [ 'number', false, 2 ],
       yAxisMinimum: [ 'number', false, 3 ],
       noDataMessage: [ 'string', false, 'No matching data found. Please try a different filter.' ],
-        
+
       // Private Variables
       _view: 'object',
       _data: 'object',
@@ -114,7 +115,7 @@
       'model._filterOpen': {
         type: function(el, filterOpen) {
           var chart = d3.select(el);
-         
+
           if (filterOpen) {
             chart.select('section.ampersand-graph-filter-window')
               .style('display', 'inline-block');
@@ -165,16 +166,16 @@
 
       this.renderChart();
     },
-    renderChart: function() {    
+    renderChart: function() {
       var data = this.model._data.models;
       var label = this.model.label;
       var values = this.model.values;
 
       var height = 336;
-      var barWidth = 25; 
+      var barWidth = 25;
       var barGroupMargin = 30;
       var barMargin = 5;
-      var lineWidth = 25; 
+      var lineWidth = 25;
       var lineGroupMargin = 50;
 
       var circleGraphRadius = this.model.drawCircleGraph ? 110 : 0;
@@ -277,9 +278,9 @@
             .attr('y', circleGraphRadius * 2 + 40)
             .text(this.model.circleGraphLabel);
         }
-        
+
         this.renderData();
-        
+
         ground = chart.append('g')
           .append('line')
             .attr('class', 'ampersand-graph-ground')
@@ -347,7 +348,7 @@
             (function(legend, legendCircle, legendKey, legendBackground, index, yAxis, ground) {
               _.defer(function() {
                 var offset = 0;
-                
+
                 if (index === 1) {
                   offset = legendKey[0][0][0].getBBox().width;
                 } else if (index > 1) {
@@ -386,7 +387,7 @@
                 yAxis.attr('x', yAxisOffset + 12);
                 ground.attr('x1', yAxisOffset + 12);
               }
-             
+
               this.renderData();
             }.bind(this));
           }.bind(this))(yAxis, ground);
@@ -431,10 +432,10 @@
       var values = this.model.values;
 
       var height = 320;
-      var barWidth = 25; 
+      var barWidth = 25;
       var barGroupMargin = 30;
       var barMargin = 5;
-      var lineWidth = 25; 
+      var lineWidth = 25;
       var lineGroupMargin = 50;
 
       var filterButton = filterContainer.append('button')
@@ -672,6 +673,12 @@
         .tickPadding(12)
         .orient('left');
 
+      if (this.model.preventDecimalTickValues) {
+        yAxisGenerator = yAxisGenerator
+          .tickSubdivide(0)
+          .tickFormat(d3.format('d'));
+      }
+
       yAxis.call(yAxisGenerator);
 
       (function(yAxis) {
@@ -867,7 +874,7 @@
       var data = this.model._data.models;
       var label = this.model.label;
       var values = this.model.values;
-     
+
       var circleGraphRadius = this.model.drawCircleGraph ? 110 : 0;
       var circleGraphPadding = this.model.drawCircleGraph ? 70 : 0;
 
@@ -909,7 +916,7 @@
         .style('opacity', 0)
         .transition()
         .style('opacity', 1);
-      
+
       containers
         .attr('transform', function(d, i) {
           return 'translate(' + ((i * values.length + 1) * barWidth + i * (values.length - 1) * barMargin + i * barGroupMargin + yAxisOffset / 2) + ',24)';
@@ -985,7 +992,7 @@
 
       var label = this.model.label;
       var values = this.model.values;
-     
+
       var yAxis = this.svg.select('svg.ampersand-graph-y-axis');
       var yAxisOffset = 0;
       yAxis.selectAll('text').each(function() {
@@ -1032,12 +1039,12 @@
 
       var container = containers.enter().append('g')
         .attr('class', 'ampersand-graph-line-container');
-      
+
       pathContainer
         .style('opacity', 0)
         .transition()
         .style('opacity', 1);
-      
+
       pathContainers
         .attr('transform', function(d, i) {
           return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth + yAxisOffset) + ',24)';
@@ -1047,7 +1054,7 @@
         .style('opacity', 0)
         .transition()
         .style('opacity', 1);
-      
+
       containers
         .attr('transform', function(d, i) {
           return 'translate(' + (i * (lineWidth + lineGroupMargin) + lineWidth + yAxisOffset) + ',24)';
@@ -1065,7 +1072,7 @@
           .attr('d', function(d) {
             var path = [
               { x: lineWidth / 2, y: height  - yBottomOffset },
-              { 
+              {
                 x: d.index < data.length - 1 ? lineWidth * 3 / 2 + lineGroupMargin : lineWidth / 2,
                 y: height  - yBottomOffset
               }
@@ -1123,7 +1130,7 @@
           .attr('d', function(d) {
             var path = [
               { x: lineWidth / 2, y: y(d[value]) + yTopOffset },
-              { 
+              {
                 x: d.index < data.length - 1 ? lineWidth * 3 / 2 + lineGroupMargin: lineWidth / 2,
                 y: d.index < data.length - 1 ? y(data[d.index + 1][value]) + yTopOffset : y(d[value]) + yTopOffset
               }
@@ -1163,7 +1170,7 @@
 
       var label = this.model.label;
       var values = this.model.values;
-     
+
       var yAxis = this.svg.select('svg.ampersand-graph-y-axis');
       var yAxisOffset = 0;
       yAxis.selectAll('text').each(function() {
@@ -1204,7 +1211,7 @@
         .style('opacity', 0)
         .transition()
         .style('opacity', 1);
-      
+
       containers
         .attr('transform', function(d, i) {
           return 'translate(' + (i * (areaWidth + areaGroupMargin) + areaWidth + yAxisOffset) + ',24)';
@@ -1222,7 +1229,7 @@
           .attr('d', function(d) {
             var path = [
               { x: areaWidth / 2, y: height  - yBottomOffset },
-              { 
+              {
                 x: d.index < data.length - 1 ? areaWidth * 3 / 2 + areaGroupMargin : areaWidth / 2,
                 y: height  - yBottomOffset
               }
@@ -1254,11 +1261,11 @@
                 x: d.index < data.length - 1 ? areaWidth * 3 / 2 : areaWidth / 2,
                 y: y(d[value]) + yTopOffset
               },
-              { 
+              {
                 x: d.index < data.length - 1 ? areaWidth / 2 + areaGroupMargin: areaWidth / 2,
                 y: d.index < data.length - 1 ? y(data[d.index + 1][value]) + yTopOffset : y(d[value]) + yTopOffset
               },
-              { 
+              {
                 x: d.index < data.length - 1 ? areaWidth * 3 / 2 + areaGroupMargin: areaWidth / 2,
                 y: d.index < data.length - 1 ? y(data[d.index + 1][value]) + yTopOffset : y(d[value]) + yTopOffset
               }

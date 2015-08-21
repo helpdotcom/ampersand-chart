@@ -1164,6 +1164,16 @@
           .attr('width', lineWidth * 2);
       }.bind(this));
 
+      // move all the text nodes to the bottom of their groups (highest z-index)
+      chart.selectAll('g.ampersand-graph-line-container')
+        .each(function() {
+          // grab all of the text nodes using a remove, also strip the d3 off
+          var texts = d3.select(this).selectAll('text').remove()[0];
+          for (var i = 0, l = texts.length; i < l; i++) {
+            this.appendChild(texts[i]);
+          }
+        });
+
       chart.select('line.ampersand-graph-ground')
         .transition()
         .attr('x2', (2 + data.length) * lineWidth + (data.length - 1) * lineGroupMargin);

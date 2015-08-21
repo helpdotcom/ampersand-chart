@@ -840,9 +840,16 @@
         .attr('y', '3.1em');
 
       containers.select('text.ampersand-graph-value')
+        .attr('dx', function(d) {
+          if (d.percent < 10) {
+            return '0.5em';
+          }
+
+          return '-0.5em';
+        })
         .attr('x', function(d) {
           if (d.percent < 10) {
-            return '3.5em';
+            return (this.parentElement.offsetWidth * (d.percent / 100)) + 5 + 'px';
           }
 
           return d.percent + '%';

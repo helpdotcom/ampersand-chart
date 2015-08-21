@@ -717,6 +717,14 @@
 
             return i % Math.ceil(width / sectionGroupWidth) === 0 ? undefined : 'none';
           }.bind(this))
+          .style('text-anchor', function(d, i) {
+            if (i === 0) {
+              return 'start';
+            } else if (i === containers[0].length - 1) {
+              return 'end';
+            }
+            return 'middle';
+          })
           .transition()
           .style('opacity', 1)
           .attr('x', sectionMargin === 0 ? sectionWidth / 2 : ((sectionWidth * values.length) + sectionMargin * (values.length - 1)) / 2);

@@ -67,6 +67,11 @@
       yAxisMinimum: [ 'number', false, 3 ],
       noDataMessage: [ 'string', false, 'No matching data found. Please try a different filter.' ],
 
+      filterTimeLabel: [ 'string', false, 'By time:' ],
+      filterDateLabel: [ 'string', false, 'By date:' ],
+      filterSearchLabel: [ 'string', false, 'By agent/group:' ],
+      filterTrackerLabel: [ 'string', false, 'Filter selections:' ],
+
       // Private Variables
       _view: 'object',
       _data: 'object',
@@ -469,7 +474,7 @@
         .attr('class', 'ampersand-graph-filter-widget ampersand-graph-filter-time');
 
       filterTime.append('h6')
-        .text('By time:');
+        .text(this.model.filterTimeLabel);
 
       var timeRangeState = this.model.timeRangeState = new AmpersandTimeRange.State();
       var timeRangeView = new AmpersandTimeRange.View({ model: timeRangeState });
@@ -480,7 +485,7 @@
         .attr('class', 'ampersand-graph-filter-widget ampersand-graph-filter-date');
 
       filterDate.append('h6')
-        .text('By date:');
+        .text(this.model.filterDateLabel);
 
       var calendarState = this.model.calendarState = new AmpersandCalendar.State();
       var calendarView = new AmpersandCalendar.View({ model: calendarState });
@@ -491,7 +496,7 @@
         .attr('class', 'ampersand-graph-filter-widget ampersand-graph-filter-personnel');
 
       filterPersonnel.append('h6')
-        .text('By agent/team:');
+        .text(this.model.filterSearchLabel);
 
       var filterAnon = filterWindow.append('section')
         .attr('class', 'ampersand-graph-filter-widget ampersand-graph-exclude-anonymous');
@@ -520,7 +525,7 @@
         .attr('class', 'ampersand-graph-filter-widget ampersand-graph-filter-selections');
 
       filterSelections.append('h6')
-        .text('Filter selections:');
+        .text(this.model.filterTrackerLabel);
 
       var filterTrackerState = this.model.filterTrackerState = new AmpersandFilterTracker.State({
         handles: [{

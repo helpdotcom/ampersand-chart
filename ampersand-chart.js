@@ -869,9 +869,11 @@
         })
         .attr('x', function(d) {
           if (d.percent < 10) {
+            this.style.textAnchor = 'start';
             return (this.parentElement.offsetWidth * (d.percent / 100)) + 5 + 'px';
           }
 
+          this.style.textAnchor = 'end';
           return d.percent + '%';
         })
         .style('fill', function(d) {

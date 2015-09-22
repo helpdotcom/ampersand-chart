@@ -800,6 +800,7 @@
 
       container.append('div')
         .attr('class', 'ampersand-graph-count-label')
+        .attr('title', _.property(label))
         .text(_.property(label));
     },
     renderHorizontalBarGraph: function() {

@@ -776,7 +776,7 @@
       var label = this.model.label;
       var minOpacity = this.model.countMinimumOpacity;
       var containerClasses = this.model.countContainerClasses;
-      var max = d3.max(data, function(d) { return d.count; });
+      var max = d3.max(data, _.property('count'));
 
       var containers = this.container.selectAll('div.ampersand-graph-count-container')
         .data(data);
@@ -800,7 +800,7 @@
 
       container.append('div')
         .attr('class', 'ampersand-graph-count-label')
-        .text(function(d) { return d[label]; });
+        .text(_.property(label));
     },
     renderHorizontalBarGraph: function() {
       var data = this.model._data.models;

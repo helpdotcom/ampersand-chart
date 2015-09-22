@@ -784,26 +784,22 @@
       containers.exit()
         .remove();
 
-      var container = containers.enter().append('div')
-        .attr('class', 'ampersand-graph-count-container ' + containerClasses.join(' '));
+      var container = containers.enter().append('div');
 
       container
+        .attr('class', 'ampersand-graph-count-container ' + containerClasses.join(' '))
         .style('opacity', 0)
         .transition()
         .style('opacity', 1);
 
       container.append('div')
-        .attr('class', 'ampersand-graph-count-number');
-
-      containers.select('div.ampersand-graph-count-number')
+        .attr('class', 'ampersand-graph-count-number')
         .text(function(d) { return d.count; })
         .transition()
         .style('opacity', function(d) { return Math.max(d.count / max, minOpacity); });
 
       container.append('div')
-        .attr('class', 'ampersand-graph-count-label');
-
-      containers.select('div.ampersand-graph-count-label')
+        .attr('class', 'ampersand-graph-count-label')
         .text(function(d) { return d[label]; });
     },
     renderHorizontalBarGraph: function() {

@@ -776,7 +776,7 @@
       var label = this.model.label;
       var minOpacity = this.model.countMinimumOpacity;
       var containerClasses = this.model.countContainerClasses;
-      var max = d3.max(data, function(d) { return d.count; });
+      var max = d3.max(data, _.property('count'));
 
       var containers = this.container.selectAll('div.ampersand-graph-count-container')
         .data(data);
@@ -784,27 +784,24 @@
       containers.exit()
         .remove();
 
-      var container = containers.enter().append('div')
-        .attr('class', 'ampersand-graph-count-container ' + containerClasses.join(' '));
+      var container = containers.enter().append('div');
 
       container
+        .attr('class', 'ampersand-graph-count-container ' + containerClasses.join(' '))
         .style('opacity', 0)
         .transition()
         .style('opacity', 1);
 
       container.append('div')
-        .attr('class', 'ampersand-graph-count-number');
-
-      containers.select('div.ampersand-graph-count-number')
+        .attr('class', 'ampersand-graph-count-number')
         .text(function(d) { return d.count; })
         .transition()
         .style('opacity', function(d) { return Math.max(d.count / max, minOpacity); });
 
       container.append('div')
-        .attr('class', 'ampersand-graph-count-label');
-
-      containers.select('div.ampersand-graph-count-label')
-        .text(function(d) { return d[label]; });
+        .attr('class', 'ampersand-graph-count-label')
+        .attr('title', _.property(label))
+        .text(_.property(label));
     },
     renderHorizontalBarGraph: function() {
       var data = this.model._data.models;

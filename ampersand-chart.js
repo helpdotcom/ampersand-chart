@@ -31,10 +31,10 @@
       searchQueryAttribute: 'string',
 
       // Filter Settings
-      timeRangeFilter: 'function',
-      calendarFilter: 'function',
-      searchSelectFilter: 'function',
-      filterOnApply: [ 'function', false, _.constant(_.noop) ],
+      timeRangeFilter: 'any',
+      calendarFilter: 'any',
+      searchSelectFilter: 'any',
+      filterOnApply: [ 'any', false, _.constant(_.noop) ],
 
       // Filter State
       timeRangeState: 'state',
@@ -60,7 +60,7 @@
       barGroupMarginCoefficient: [ 'number', false, 1.2 ],
       lineGroupMarginCoefficient: [ 'number', false, 2 ],
       areaGroupMarginCoefficient: [ 'number', false, 2 ],
-      circleGraphFunction: 'function',
+      circleGraphFunction: 'any',
       circleGraphLabel: [ 'string', false, '' ],
       colorCount: [ 'number', false, Infinity ],
       valueRoundingPlace: [ 'number', false, 2 ],
